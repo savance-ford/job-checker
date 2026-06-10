@@ -15,15 +15,28 @@ const statusLabels: Record<SignalStatus, string> = {
 export function SignalBadge({
   status,
   severity,
+  label,
 }: {
   status: SignalStatus;
   severity: SignalSeverity;
+  label?: string;
 }) {
+  const displayLabel =
+    label === "Job found on ATS"
+      ? "Found"
+      : label === "Job not found on ATS"
+        ? "Could not verify"
+        : label === "ATS verification incomplete"
+          ? "Incomplete"
+          : label === "Known ATS detected"
+            ? "Known ATS"
+            : statusLabels[status];
+
   return (
     <span
       className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[status]}`}
     >
-      {statusLabels[status]}
+      {displayLabel}
       {status === "warning" && severity === "high" ? " - high priority" : ""}
     </span>
   );

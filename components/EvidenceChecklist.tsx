@@ -25,7 +25,11 @@ export function EvidenceChecklist({ signals }: { signals: ScanSignal[] }) {
                   </p>
                 ) : null}
               </div>
-              <SignalBadge status={item.status} severity={item.severity} />
+              <SignalBadge
+                status={item.status}
+                severity={item.severity}
+                label={item.label}
+              />
             </div>
           </li>
         ))}

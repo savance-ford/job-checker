@@ -1,4 +1,7 @@
-import type { KnownAtsDetectionResult } from "@/lib/ats/types";
+import type {
+  AtsPublicJob,
+  KnownAtsDetectionResult,
+} from "@/lib/ats/types";
 
 const GREENHOUSE_HOSTS = [
   "greenhouse.io",
@@ -60,4 +63,32 @@ export function detectGreenhouse(
       companySlug && jobId ? "high" : companySlug || jobId ? "medium" : "low",
     evidence,
   };
+}
+
+export function getGreenhouseFeedUrl(companySlug: string) {
+  return `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(companySlug)}/jobs?content=true`;
+}
+
+export function parseGreenhouseJobs(payload: unknown): AtsPublicJob[] | null {
+  if (!payload || typeof payload !== "object") return null;
+
+  const jobs = (payload as { jobs?: unknown }).jobs;
+  if (!Array.isArray(jobs)) return null;
+
+  return jobs.flatMap((job) => {
+    if (!job || typeof job !== "object") return [];
+
+    const record = job as Record<string, unknown>;
+    const id =
+      typeof record.id === "string" || typeof record.id === "number"
+        ? String(record.id)
+        : undefined;
+    const title = typeof record.title === "string" ? record.title : undefined;
+    const sourceUrl =
+      typeof record.absolute_url === "string"
+        ? record.absolute_url
+        : undefined;
+
+    return id || title ? [{ id, title, sourceUrl }] : [];
+  });
 }

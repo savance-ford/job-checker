@@ -3,7 +3,10 @@ import {
   hasLocation,
   hasPay,
 } from "@/lib/scan/extractors";
-import type { AtsDetectionResult } from "@/lib/ats/types";
+import type {
+  AtsDetectionResult,
+  AtsVerificationResult,
+} from "@/lib/ats/types";
 import {
   hasUnusualDomainPattern,
   hostnameMatches,
@@ -18,6 +21,7 @@ type SignalContext = {
   originalUrl: URL | null;
   finalUrl: URL | null;
   atsDetection: AtsDetectionResult;
+  atsVerification: AtsVerificationResult | null;
   email: string | null;
   companyName: string | null;
   jobTitle: string | null;
@@ -32,6 +36,45 @@ function signal(
   return condition ? value : null;
 }
 
+function getAtsVerificationSignal(
+  result: AtsVerificationResult | null,
+): ScanSignal | null {
+  if (!result) return null;
+
+  const evidence = result.evidence.join("; ");
+
+  if (result.status === "verified") {
+    return {
+      label: "Job found on ATS",
+      status: "positive",
+      severity: "high",
+      message:
+        "This job was found in the public job feed for the detected ATS.",
+      evidence,
+    };
+  }
+
+  if (result.status === "not_found") {
+    return {
+      label: "Job not found on ATS",
+      status: "warning",
+      severity: "low",
+      message:
+        "The apply link used a known ATS, but this exact job could not be confirmed in the public job feed.",
+      evidence,
+    };
+  }
+
+  return {
+    label: "ATS verification incomplete",
+    status: "unknown",
+    severity: "info",
+    message:
+      "The ATS was detected, but the app could not complete public job verification.",
+    evidence,
+  };
+}
+
 export function detectSignals(context: SignalContext) {
   const {
     input,
@@ -39,6 +82,7 @@ export function detectSignals(context: SignalContext) {
     originalUrl,
     finalUrl,
     atsDetection,
+    atsVerification,
     email,
     companyName,
     jobTitle,
@@ -81,13 +125,14 @@ export function detectSignals(context: SignalContext) {
       {
         label: "Known ATS detected",
         status: "positive",
-        severity: "high",
+        severity: "low",
         message:
           "The apply link appears to use a known applicant tracking system.",
         evidence: atsEvidence,
       },
       knownAtsDetected,
     ),
+    getAtsVerificationSignal(atsVerification),
     signal(
       {
         label: "Shortened URL",
