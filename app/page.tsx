@@ -1,6 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ScanForm } from "@/components/ScanForm";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Check a Job Before You Apply",
+  description:
+    "Review a job post, recruiter email, application link, or offer for evidence-based risk signals and public ATS verification.",
+  path: "/",
+});
 
 const steps = [
   {
@@ -30,6 +39,34 @@ const checkerLinks = [
   ["Customer service jobs", "/customer-service-job-scam-checker"],
   ["Recruiter emails", "/recruiter-email-checker"],
   ["Job offers", "/job-offer-checker"],
+] as const;
+
+const checkedSignals = [
+  {
+    title: "Company website signals",
+    description:
+      "Looks for a clear employer identity and contact details that can be checked independently.",
+  },
+  {
+    title: "Apply link safety",
+    description:
+      "Reviews HTTPS, shortened links, redirects, and unusual domain patterns.",
+  },
+  {
+    title: "ATS verification",
+    description:
+      "Checks supported Greenhouse, Lever, and Ashby links against public job feeds.",
+  },
+  {
+    title: "Risk language patterns",
+    description:
+      "Flags payment, check-deposit, gift-card, equipment, and early sensitive-data requests.",
+  },
+  {
+    title: "Ghost-job warning signs",
+    description:
+      "Looks for missing role details and application links that cannot be confirmed.",
+  },
 ] as const;
 
 export default function Home() {
@@ -97,6 +134,46 @@ export default function Home() {
         </ol>
       </section>
 
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
+            What the tool checks
+          </p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            Practical signals you can verify
+          </h2>
+          <p className="mt-4 text-lg leading-8 text-slate-600">
+            Every report explains what was found, what deserves caution, and
+            what the checker could not confirm.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {checkedSignals.map((item) => (
+            <article
+              key={item.title}
+              className="rounded-2xl border border-slate-200 bg-white p-6"
+            >
+              <div className="grid size-10 place-items-center rounded-xl bg-teal-100 text-teal-800">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="size-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
+              </div>
+              <h3 className="mt-4 font-bold text-slate-950">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {item.description}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="border-y border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
           <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
@@ -133,6 +210,11 @@ export default function Home() {
           Use the report as a starting point, then confirm the role through the
           employer&apos;s official website or a contact channel you found
           independently.
+        </p>
+        <p className="mx-auto mt-5 max-w-2xl rounded-xl bg-slate-100 px-5 py-4 text-sm leading-6 text-slate-600">
+          This tool provides risk signals, not a legal determination. Always
+          verify job offers directly with the employer before sharing sensitive
+          information.
         </p>
         <Link
           href="/#scan"
