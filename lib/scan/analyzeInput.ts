@@ -4,6 +4,7 @@ import {
   extractJobTitle,
   extractUrl,
 } from "@/lib/scan/extractors";
+import { detectAts } from "@/lib/ats/detectAts";
 import {
   buildSummary,
   calculateScore,
@@ -42,12 +43,18 @@ export async function analyzeInput(
       finalParsedUrl = null;
     }
   }
+  const finalAtsDetection = detectAts(finalParsedUrl);
+  const atsDetection =
+    finalAtsDetection.provider !== "unknown"
+      ? finalAtsDetection
+      : detectAts(originalParsedUrl);
 
   const signals = detectSignals({
     input,
     inputType,
     originalUrl: originalParsedUrl,
     finalUrl: finalParsedUrl,
+    atsDetection,
     email: detectedEmail,
     companyName,
     jobTitle,

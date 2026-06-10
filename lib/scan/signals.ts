@@ -3,11 +3,11 @@ import {
   hasLocation,
   hasPay,
 } from "@/lib/scan/extractors";
+import type { AtsDetectionResult } from "@/lib/ats/types";
 import {
   hasUnusualDomainPattern,
   hostnameMatches,
   isFreeEmailDomain,
-  isKnownAtsDomain,
   isUrlShortener,
 } from "@/lib/url/domain";
 import type { InputType, ScanSignal } from "@/lib/types";
@@ -17,6 +17,7 @@ type SignalContext = {
   inputType: InputType;
   originalUrl: URL | null;
   finalUrl: URL | null;
+  atsDetection: AtsDetectionResult;
   email: string | null;
   companyName: string | null;
   jobTitle: string | null;
@@ -37,6 +38,7 @@ export function detectSignals(context: SignalContext) {
     inputType,
     originalUrl,
     finalUrl,
+    atsDetection,
     email,
     companyName,
     jobTitle,
@@ -45,8 +47,13 @@ export function detectSignals(context: SignalContext) {
   } = context;
   const destinationUrl = finalUrl ?? originalUrl;
   const emailDomain = email?.split("@")[1] ?? null;
-  const matchingAtsDomain = destinationUrl
-    ? isKnownAtsDomain(destinationUrl.hostname)
+  const knownAtsDetected = atsDetection.provider !== "unknown";
+  const atsEvidence = knownAtsDetected
+    ? [
+        `Provider: ${atsDetection.provider}`,
+        `Confidence: ${atsDetection.confidence}`,
+        ...atsDetection.evidence,
+      ].join("; ")
     : null;
 
   const signals = [
@@ -75,10 +82,11 @@ export function detectSignals(context: SignalContext) {
         label: "Known ATS detected",
         status: "positive",
         severity: "high",
-        message: `The link is hosted by a commonly used applicant tracking system.`,
-        evidence: matchingAtsDomain,
+        message:
+          "The apply link appears to use a known applicant tracking system.",
+        evidence: atsEvidence,
       },
-      Boolean(matchingAtsDomain),
+      knownAtsDetected,
     ),
     signal(
       {
@@ -160,7 +168,7 @@ export function detectSignals(context: SignalContext) {
       Boolean(
         emailDomain &&
           destinationUrl &&
-          !matchingAtsDomain &&
+          !knownAtsDetected &&
           (hostnameMatches(destinationUrl.hostname, emailDomain) ||
             hostnameMatches(emailDomain, destinationUrl.hostname)),
       ),
