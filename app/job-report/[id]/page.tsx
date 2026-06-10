@@ -29,18 +29,15 @@ export async function generateMetadata({
   const { id } = await params;
 
   if (!reportIdSchema.safeParse(id).success) {
-    return {
-      title: "Job Trust Report Not Found",
-      description: "The requested saved job trust report is not available.",
-      robots: {
-        index: false,
-        follow: false,
-      },
-    };
+    notFound();
   }
 
   try {
     const report = await getCachedScanReport(id);
+    if (!report) {
+      notFound();
+    }
+
     const title = report?.scan.job_title
       ? `${report.scan.job_title} Trust Report`
       : "Job Trust Report";
