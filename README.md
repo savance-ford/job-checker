@@ -25,6 +25,7 @@ is fraudulent, and it does not use an AI model.
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SITE_URL=https://your-production-domain.example
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` is used only by server-only modules. Never expose it
@@ -33,6 +34,9 @@ in browser code or commit `.env.local`.
 The anon key is included for standard Supabase project configuration and future
 client-side use. This MVP stores and reads reports through the server-side
 service role because row-level security is enabled without public policies.
+
+`NEXT_PUBLIC_SITE_URL` sets the canonical and Open Graph origin. On Vercel, the
+app falls back to the production deployment hostname when this value is not set.
 
 ## Run locally
 

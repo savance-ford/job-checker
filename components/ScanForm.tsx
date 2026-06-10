@@ -110,6 +110,7 @@ export function ScanForm({
       </label>
       <textarea
         id="job-input"
+        aria-describedby="job-input-help"
         value={input}
         onChange={(event) => setInput(event.target.value)}
         placeholder={placeholders[inputType]}
@@ -120,9 +121,17 @@ export function ScanForm({
       />
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs leading-5 text-slate-500">
-          Do not include passwords, full SSNs, bank numbers, or identity documents.
-        </p>
+        <div id="job-input-help" className="text-xs leading-5 text-slate-500">
+          <p>
+            Do not include passwords, full SSNs, bank numbers, or identity
+            documents.
+          </p>
+          <p className="mt-1">
+            {input.length
+              ? `${input.length.toLocaleString()} of 50,000 characters`
+              : "Paste at least 10 characters to run a useful check."}
+          </p>
+        </div>
         <button
           type="submit"
           disabled={isSubmitting || input.trim().length < 10}
@@ -138,6 +147,10 @@ export function ScanForm({
           )}
         </button>
       </div>
+
+      <p role="status" aria-live="polite" className="sr-only">
+        {isSubmitting ? "Checking the submitted job signals." : ""}
+      </p>
 
       {error ? (
         <p role="alert" className="mt-4 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-800">
