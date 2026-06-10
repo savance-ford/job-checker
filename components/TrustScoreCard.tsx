@@ -10,16 +10,18 @@ export function TrustScoreCard({
   score,
   recommendation,
   summary,
+  lastChecked,
 }: {
   score: number;
   recommendation: Recommendation;
   summary: string | null;
+  lastChecked: string;
 }) {
   const circumference = 2 * Math.PI * 42;
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <section className="rounded-2xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-950/10 sm:p-8">
+    <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-950/10 sm:p-8">
       <div className="flex flex-col gap-7 sm:flex-row sm:items-center">
         <div className="relative mx-auto size-36 shrink-0 sm:mx-0">
           <svg viewBox="0 0 100 100" className="-rotate-90">
@@ -51,6 +53,9 @@ export function TrustScoreCard({
             {recommendation}
           </div>
           <p className="mt-4 max-w-xl leading-7 text-slate-300">{summary}</p>
+          <p className="mt-4 text-sm text-slate-400">
+            Last checked {lastChecked}
+          </p>
         </div>
       </div>
     </section>
