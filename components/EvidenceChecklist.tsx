@@ -60,6 +60,24 @@ function SignalList({ signals }: { signals: ScanSignal[] }) {
 }
 
 export function EvidenceChecklist({ signals }: { signals: ScanSignal[] }) {
+  if (!signals.length) {
+    return (
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
+          Evidence checklist
+        </p>
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
+          No saved signals are available
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          The report record was found, but its evidence checklist could not be
+          loaded. Verify the opportunity directly with the employer before
+          sharing sensitive information.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
       <div className="mb-8">

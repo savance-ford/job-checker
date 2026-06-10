@@ -121,6 +121,9 @@ export default async function ReportPage({
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(scan.created_at));
+  const reportSummary =
+    scan.summary ??
+    "Review the evidence checklist and verify the opportunity directly with the employer before sharing sensitive information.";
 
   return (
     <main className="bg-slate-50/70">
@@ -142,7 +145,7 @@ export default async function ReportPage({
         <TrustScoreCard
           score={scan.score}
           recommendation={scan.recommendation}
-          summary={scan.summary}
+          summary={reportSummary}
           lastChecked={createdAt}
         />
 
@@ -156,7 +159,7 @@ export default async function ReportPage({
             <ReportShareCard
               recommendation={scan.recommendation}
               score={scan.score}
-              summary={scan.summary}
+              summary={reportSummary}
             />
 
             <section className="rounded-2xl border border-slate-200 bg-white p-6">
