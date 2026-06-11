@@ -5,6 +5,12 @@ export type CategoryFaq = {
   answer: string;
 };
 
+export type RelatedChecker = {
+  title: string;
+  href: `/${string}`;
+  description: string;
+};
+
 export type CategoryPageConfig = {
   slug: string;
   title: string;
@@ -14,8 +20,11 @@ export type CategoryPageConfig = {
   detail: string;
   defaultInputType: InputType;
   checks: string[];
+  answerTitle: string;
+  answerSteps: string[];
   warningSigns: string[];
   faqs: CategoryFaq[];
+  relatedCheckers: RelatedChecker[];
 };
 
 export const categoryPages = {
@@ -35,11 +44,20 @@ export const categoryPages = {
       "Check recruiter email and job-link patterns",
       "Look for public ATS job verification when available",
     ],
+    answerTitle: "How to check if a job post has risk signals",
+    answerSteps: [
+      "Find the employer's official website independently instead of relying only on links in the post.",
+      "Confirm that the same role appears on the official careers page or a recognized applicant tracking system.",
+      "Compare the recruiter email domain, company name, job title, pay, and location across sources.",
+      "Pause if the process involves payments, check deposits, gift cards, crypto, or equipment purchases.",
+      "Do not share banking details, SSN, or identity documents until the employer and hiring process are verified.",
+    ],
     warningSigns: [
       "Requests to pay a fee or move money before starting",
       "A recruiter using a personal email with no company verification",
       "An offer made without a normal interview or role discussion",
       "Early requests for banking details, SSN, or identity documents",
+      "A link or message whose company name does not match its email or website domain",
     ],
     faqs: [
       {
@@ -56,6 +74,20 @@ export const categoryPages = {
         question: "What does Verify First mean?",
         answer:
           "It means the report found details that deserve an independent check before you apply or send personal information.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Recruiter Email Checker",
+        href: "/recruiter-email-checker",
+        description:
+          "Review sender domains, links, urgency, and requests in a recruiting message.",
+      },
+      {
+        title: "Job Offer Checker",
+        href: "/job-offer-checker",
+        description:
+          "Check an offer for interview evidence, payment requests, and sensitive-data requests.",
       },
     ],
   },
@@ -75,11 +107,20 @@ export const categoryPages = {
       "Review whether the employer and application path can be identified",
       "Check public ATS feeds when a supported job link is provided",
     ],
+    answerTitle: "How to check whether a job listing may be inactive",
+    answerSteps: [
+      "Check the posting date and whether the listing has been repeatedly refreshed or reposted.",
+      "Search the employer's official careers page for the exact title and location.",
+      "Confirm that the application link still opens a current role rather than a generic talent page.",
+      "Look for specific duties, team needs, reporting lines, and hiring timelines instead of evergreen wording.",
+      "Ask the employer through an official contact channel whether the role is actively accepting applications.",
+    ],
     warningSigns: [
       "The same listing remains open for a long period without updates",
       "The role has little detail about responsibilities or team needs",
       "The job appears on an aggregator but not the company careers page",
       "The application link no longer resolves to a current posting",
+      "An identical evergreen description is repeatedly reposted without a clear hiring timeline",
     ],
     faqs: [
       {
@@ -96,6 +137,20 @@ export const categoryPages = {
         question: "Does a missing ATS match prove the role is inactive?",
         answer:
           "No. Feeds can change, links can be customized, and some jobs are not publicly listed. Treat a missing match as a reason to verify.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Job Scam Checker",
+        href: "/job-scam-checker",
+        description:
+          "Review the broader posting, recruiter contact, and application path for risk signals.",
+      },
+      {
+        title: "Remote Job Scam Checker",
+        href: "/remote-job-scam-checker",
+        description:
+          "Check a remote listing whose company identity or current hiring status is difficult to confirm.",
       },
     ],
   },
@@ -115,11 +170,20 @@ export const categoryPages = {
       "Detect equipment, check, crypto, and gift-card requests",
       "Check whether the application link uses a supported ATS",
     ],
+    answerTitle: "How to verify a remote job before applying",
+    answerSteps: [
+      "Verify the company website and careers page through a search you perform independently.",
+      "Confirm that the recruiter works for the employer and uses a credible company or agency domain.",
+      "Look for a scheduled interview process with identifiable people, not only text messages.",
+      "Compare the pay, duties, location rules, and employment type with the official listing.",
+      "Reject requests to deposit checks, purchase equipment, transfer funds, or share sensitive data before verification.",
+    ],
     warningSigns: [
       "The interview happens only through text or an unfamiliar chat app",
       "The employer sends a check to purchase home-office equipment",
       "High pay is promised for simple work with no relevant experience",
       "The recruiter cannot be confirmed through the company website",
+      "You are pressured to start immediately before the role and employer are clearly explained",
     ],
     faqs: [
       {
@@ -136,6 +200,20 @@ export const categoryPages = {
         question: "What is a normal remote interview process?",
         answer:
           "Processes vary, but they commonly include identifiable company representatives, scheduled conversations, and written details that match the official careers page.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Work From Home Job Scam Checker",
+        href: "/work-from-home-job-scam-checker",
+        description:
+          "Review home-based work claims, startup costs, and equipment or payment instructions.",
+      },
+      {
+        title: "Recruiter Email Checker",
+        href: "/recruiter-email-checker",
+        description:
+          "Check whether a remote recruiter's sender domain and links align with the employer.",
       },
     ],
   },
@@ -155,11 +233,20 @@ export const categoryPages = {
       "Review upfront fees and equipment purchase requests",
       "Identify missing employer and role details",
     ],
+    answerTitle: "How to verify a work-from-home opportunity",
+    answerSteps: [
+      "Identify the legal company name and find its official website without using the message link.",
+      "Check the careers page for the role, duties, schedule, pay structure, and location requirements.",
+      "Confirm the recruiter through an official company contact or a verifiable staffing agency.",
+      "Review whether training, equipment, software, or starter materials require you to pay first.",
+      "Avoid package reshipping, money transfers, check deposits, or sensitive-data requests before formal onboarding.",
+    ],
     warningSigns: [
       "Guaranteed earnings with little explanation of the actual work",
       "A required starter kit, training fee, or membership payment",
       "Instructions to receive and resend packages or transfer funds",
       "No verifiable company address, careers page, or business contact",
+      "A hiring process conducted only through social media or a personal messaging account",
     ],
     faqs: [
       {
@@ -176,6 +263,20 @@ export const categoryPages = {
         question: "Does a professional-looking website prove an offer is legitimate?",
         answer:
           "No. A polished site is only one signal. Check the domain, company identity, recruiter contact, and official job listing together.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Remote Job Scam Checker",
+        href: "/remote-job-scam-checker",
+        description:
+          "Review remote interview practices, recruiter identity, and application-link evidence.",
+      },
+      {
+        title: "Job Offer Checker",
+        href: "/job-offer-checker",
+        description:
+          "Check a work-from-home offer before accepting terms or sharing onboarding information.",
       },
     ],
   },
@@ -195,11 +296,20 @@ export const categoryPages = {
       "Review the recruiter email and application URL",
       "Flag requests for money or sensitive information",
     ],
+    answerTitle: "How to check if a data entry job is risky",
+    answerSteps: [
+      "Verify the company website independently and confirm the business clearly explains what it does.",
+      "Check whether the data entry role appears on the official careers page with specific duties and hours.",
+      "Compare the recruiter email domain with the employer's website and published contact details.",
+      "Avoid roles that ask you to deposit checks, buy equipment, process payments, or pay for training.",
+      "Do not send banking details, SSN, or identity documents before the employer and onboarding system are verified.",
+    ],
     warningSigns: [
       "Very high hourly pay for basic tasks with no experience required",
       "An immediate offer before skills, schedule, or duties are discussed",
       "A request to deposit checks or process payments as part of the role",
       "A vague company identity paired with urgent onboarding requests",
+      "Interviews conducted only through Telegram, WhatsApp, or another personal messaging app",
     ],
     faqs: [
       {
@@ -216,6 +326,20 @@ export const categoryPages = {
         question: "What details should a data entry post include?",
         answer:
           "Look for the employer, specific duties, expected hours, employment type, pay structure, location rules, and a credible application process.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Remote Job Scam Checker",
+        href: "/remote-job-scam-checker",
+        description:
+          "Review remote hiring claims, chat-based interviews, and equipment instructions.",
+      },
+      {
+        title: "Job Offer Checker",
+        href: "/job-offer-checker",
+        description:
+          "Check a data entry offer for rushed hiring, fake-check patterns, and sensitive-data requests.",
       },
     ],
   },
@@ -235,11 +359,20 @@ export const categoryPages = {
       "Review no-interview and immediate-start language",
       "Flag early requests for banking or identity information",
     ],
+    answerTitle: "How to verify a customer service job",
+    answerSteps: [
+      "Confirm the employer's official website, product or service, and customer support operation.",
+      "Find the role on the official careers page and compare its schedule, location, and employment type.",
+      "Verify recruiter and interviewer identities through company-domain email or an official contact.",
+      "Ask how support is provided, what tools are used, and who supplies required equipment.",
+      "Do not pay vendors or share banking, SSN, or identity documents before formal verified onboarding.",
+    ],
     warningSigns: [
       "No details about the product, customers, schedule, or support channel",
       "A job offer based only on a text conversation",
       "Requests to buy a headset, laptop, or software from a named vendor",
       "Banking or identity-document requests before formal onboarding",
+      "An interview moved immediately to a personal chat account with no company contact",
     ],
     faqs: [
       {
@@ -256,6 +389,20 @@ export const categoryPages = {
         question: "When is an equipment request concerning?",
         answer:
           "Be cautious when you must pay first, deposit a check, or buy from a specific vendor before the employer is independently verified.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Remote Job Scam Checker",
+        href: "/remote-job-scam-checker",
+        description:
+          "Check remote support roles for text-only interviews, unrealistic pay, and equipment requests.",
+      },
+      {
+        title: "Recruiter Email Checker",
+        href: "/recruiter-email-checker",
+        description:
+          "Review the sender domain and links in a customer service recruiting message.",
       },
     ],
   },
@@ -275,11 +422,20 @@ export const categoryPages = {
       "Review included links and redirect behavior",
       "Flag financial and sensitive-information requests",
     ],
+    answerTitle: "How to verify a recruiter email before responding",
+    answerSteps: [
+      "Compare the sender's full domain with the employer's official website and known staffing partners.",
+      "Search for the recruiter through the company directory or contact the employer using details you found independently.",
+      "Hover over or inspect links before opening them, and prefer navigating directly to the official careers page.",
+      "Confirm that the job title, location, pay, and application process match an official listing.",
+      "Do not send money, banking details, SSN, passwords, or identity documents in response to an unverified message.",
+    ],
     warningSigns: [
       "The sender domain does not match the company they claim to represent",
       "The message creates urgency before explaining the role",
       "Links use shorteners or lead to an unrelated application domain",
       "The recruiter requests money or sensitive records early",
+      "Unexpected attachments or sign-in pages ask for credentials before the recruiter is verified",
     ],
     faqs: [
       {
@@ -296,6 +452,20 @@ export const categoryPages = {
         question: "Should I click links in an unexpected recruiter email?",
         answer:
           "Review the visible destination first. When possible, navigate to the employer's careers page yourself instead of relying on the message link.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Job Scam Checker",
+        href: "/job-scam-checker",
+        description:
+          "Review the complete job post or message for broader payment, identity, and application-link signals.",
+      },
+      {
+        title: "Job Offer Checker",
+        href: "/job-offer-checker",
+        description:
+          "Check an offer received by email before responding or sharing onboarding details.",
       },
     ],
   },
@@ -315,11 +485,20 @@ export const categoryPages = {
       "Detect check, equipment, crypto, and gift-card language",
       "Flag early requests for banking or identity details",
     ],
+    answerTitle: "How to verify a job offer before accepting",
+    answerSteps: [
+      "Confirm the employer, recruiter, interviewers, and role through the official company website.",
+      "Compare the offer with the job posting and prior conversations, including title, pay, manager, and location.",
+      "Contact the employer through an independently found phone number or email if any detail is unclear.",
+      "Pause if the offer requires payment, a check deposit, equipment purchases, crypto, or gift cards.",
+      "Share payroll or identity information only through verified onboarding after a credible hiring process.",
+    ],
     warningSigns: [
       "An offer arrives before any meaningful interview",
       "The employer sends a check and directs you to buy equipment",
       "The letter uses a company name but unrelated email or web domains",
       "You are pressured to send banking or identity documents immediately",
+      "A rushed start date or onboarding deadline discourages independent verification",
     ],
     faqs: [
       {
@@ -336,6 +515,20 @@ export const categoryPages = {
         question: "When should I share payroll information?",
         answer:
           "Only after verifying the employer and completing a credible hiring process through secure onboarding channels.",
+      },
+    ],
+    relatedCheckers: [
+      {
+        title: "Recruiter Email Checker",
+        href: "/recruiter-email-checker",
+        description:
+          "Review the sender, links, and requests in the message that delivered the offer.",
+      },
+      {
+        title: "Job Scam Checker",
+        href: "/job-scam-checker",
+        description:
+          "Check the original posting and hiring process for risk and verification signals.",
       },
     ],
   },
