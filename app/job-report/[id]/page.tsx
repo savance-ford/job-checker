@@ -38,8 +38,8 @@ export async function generateMetadata({
       notFound();
     }
 
-    const title = report?.scan.job_title
-      ? `${report.scan.job_title} Trust Report`
+    const title = report?.scan.input_summary.jobTitle
+      ? `${report.scan.input_summary.jobTitle} Trust Report`
       : "Job Trust Report";
     const description =
       report?.scan.summary ??
@@ -114,6 +114,7 @@ export default async function ReportPage({
   }
 
   const { scan, signals } = report;
+  const inputSummary = scan.input_summary;
   const createdAt = new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -123,6 +124,16 @@ export default async function ReportPage({
     "Review the evidence checklist and verify the opportunity directly with the employer before sharing sensitive information.";
   const topSummary =
     reportSummary.match(/^.*?[.!?](?:\s|$)/)?.[0].trim() ?? reportSummary;
+  const topEvidence = [...signals]
+    .sort((a, b) => {
+      const priority = { warning: 0, positive: 1, unknown: 2 };
+      return priority[a.status] - priority[b.status];
+    })
+    .slice(0, 3)
+    .map((signal) => ({
+      label: signal.label,
+      message: signal.message,
+    }));
 
   return (
     <main className="bg-slate-50/70">
@@ -132,11 +143,11 @@ export default async function ReportPage({
             Saved trust report
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-            {scan.job_title ?? "Job opportunity review"}
+            {inputSummary.jobTitle ?? "Job opportunity review"}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            {scan.company_name
-              ? `Submitted opportunity for ${scan.company_name}`
+            {inputSummary.companyName
+              ? `Submitted opportunity for ${inputSummary.companyName}`
               : "Submitted job opportunity"}
           </p>
         </div>
@@ -159,63 +170,66 @@ export default async function ReportPage({
               recommendation={scan.recommendation}
               score={scan.score}
               summary={reportSummary}
+              inputSummary={inputSummary}
+              topEvidence={topEvidence}
             />
 
             <section className="rounded-2xl border border-slate-200 bg-white p-6">
-              <h2 className="font-semibold text-slate-950">
-                Submitted details
-              </h2>
+              <h2 className="font-semibold text-slate-950">Input summary</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Only privacy-safe derived details are shown publicly.
+              </p>
               <dl className="mt-4 space-y-4 text-sm">
                 <div>
                   <dt className="text-slate-500">Input type</dt>
                   <dd className="mt-1 font-medium text-slate-900">
-                    {formatInputType(scan.input_type)}
+                    {formatInputType(inputSummary.inputType)}
                   </dd>
                 </div>
-                <div>
-                  <dt className="text-slate-500">Company</dt>
-                  <dd className="mt-1 break-words font-medium text-slate-900">
-                    {scan.company_name ?? "Could not verify"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-slate-500">Job title</dt>
-                  <dd className="mt-1 break-words font-medium text-slate-900">
-                    {scan.job_title ?? "Could not verify"}
-                  </dd>
-                </div>
-                {scan.detected_email ? (
+                {inputSummary.companyName ? (
                   <div>
-                    <dt className="text-slate-500">Detected email</dt>
-                    <dd className="mt-1 break-all font-medium text-slate-900">
-                      {scan.detected_email}
+                    <dt className="text-slate-500">Detected company</dt>
+                    <dd className="mt-1 break-words font-medium text-slate-900">
+                      {inputSummary.companyName}
                     </dd>
                   </div>
                 ) : null}
-                {scan.final_url ? (
+                {inputSummary.jobTitle ? (
                   <div>
-                    <dt className="text-slate-500">Final URL</dt>
-                    <dd className="mt-1 break-all">
-                      <a
-                        href={scan.final_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2"
-                      >
-                        {scan.final_url}
-                      </a>
+                    <dt className="text-slate-500">Detected job title</dt>
+                    <dd className="mt-1 break-words font-medium text-slate-900">
+                      {inputSummary.jobTitle}
+                    </dd>
+                  </div>
+                ) : null}
+                {inputSummary.originalUrlDomain ? (
+                  <div>
+                    <dt className="text-slate-500">Original URL domain</dt>
+                    <dd className="mt-1 break-all font-medium text-slate-900">
+                      {inputSummary.originalUrlDomain}
+                    </dd>
+                  </div>
+                ) : null}
+                {inputSummary.finalUrlDomain ? (
+                  <div>
+                    <dt className="text-slate-500">Final URL domain</dt>
+                    <dd className="mt-1 break-all font-medium text-slate-900">
+                      {inputSummary.finalUrlDomain}
+                    </dd>
+                  </div>
+                ) : null}
+                {inputSummary.emailDomain ? (
+                  <div>
+                    <dt className="text-slate-500">Detected email domain</dt>
+                    <dd className="mt-1 break-all font-medium text-slate-900">
+                      {inputSummary.emailDomain}
                     </dd>
                   </div>
                 ) : null}
               </dl>
-              <details className="mt-5 border-t border-slate-200 pt-5">
-                <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                  View submitted text
-                </summary>
-                <p className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-100 p-3 text-xs leading-5 text-slate-700">
-                  {scan.input_value}
-                </p>
-              </details>
+              <p className="mt-5 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600">
+                Submitted content hidden for privacy.
+              </p>
             </section>
           </aside>
         </div>

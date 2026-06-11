@@ -1,14 +1,36 @@
 import "server-only";
 
+import {
+  createSafeInputSummary,
+  sanitizePublicEvidence,
+} from "@/lib/privacy/redact";
 import type {
+  InputType,
+  Recommendation,
+  SavedScan,
   ScanAnalysis,
   ScanReport,
-  StoredScan,
   StoredSignal,
 } from "@/lib/types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
-export async function saveScanReport(analysis: ScanAnalysis) {
+type PublicScanRow = {
+  id: string;
+  input_type: InputType;
+  company_name: string | null;
+  job_title: string | null;
+  detected_email: string | null;
+  original_url: string | null;
+  final_url: string | null;
+  score: number;
+  recommendation: Recommendation;
+  summary: string | null;
+  created_at: string;
+};
+
+export async function saveScanReport(
+  analysis: ScanAnalysis,
+): Promise<SavedScan> {
   const supabase = getSupabaseAdmin();
   const { data: scan, error: scanError } = await supabase
     .from("scans")
@@ -24,7 +46,7 @@ export async function saveScanReport(analysis: ScanAnalysis) {
       recommendation: analysis.recommendation,
       summary: analysis.summary,
     })
-    .select("*")
+    .select("id")
     .single();
 
   if (scanError || !scan) {
@@ -49,14 +71,16 @@ export async function saveScanReport(analysis: ScanAnalysis) {
     throw new Error(signalsError.message);
   }
 
-  return scan as StoredScan;
+  return scan as SavedScan;
 }
 
 export async function getScanReport(id: string): Promise<ScanReport | null> {
   const supabase = getSupabaseAdmin();
   const { data: scan, error: scanError } = await supabase
     .from("scans")
-    .select("*")
+    .select(
+      "id,input_type,company_name,job_title,detected_email,original_url,final_url,score,recommendation,summary,created_at",
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -70,7 +94,7 @@ export async function getScanReport(id: string): Promise<ScanReport | null> {
 
   const { data: signals, error: signalsError } = await supabase
     .from("scan_signals")
-    .select("*")
+    .select("id,scan_id,label,status,severity,message,evidence,created_at")
     .eq("scan_id", id)
     .order("created_at", { ascending: true });
 
@@ -78,8 +102,21 @@ export async function getScanReport(id: string): Promise<ScanReport | null> {
     throw new Error(signalsError.message);
   }
 
+  const publicScan = scan as PublicScanRow;
+  const publicSignals = (signals ?? []).map((signal) => ({
+    ...signal,
+    evidence: sanitizePublicEvidence(signal.evidence),
+  })) as StoredSignal[];
+
   return {
-    scan: scan as StoredScan,
-    signals: (signals ?? []) as StoredSignal[],
+    scan: {
+      id: publicScan.id,
+      score: publicScan.score,
+      recommendation: publicScan.recommendation,
+      summary: publicScan.summary,
+      created_at: publicScan.created_at,
+      input_summary: createSafeInputSummary(publicScan),
+    },
+    signals: publicSignals,
   };
 }
