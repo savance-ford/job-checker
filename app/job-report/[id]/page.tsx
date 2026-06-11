@@ -121,6 +121,8 @@ export default async function ReportPage({
   const reportSummary =
     scan.summary ??
     "Review the evidence checklist and verify the opportunity directly with the employer before sharing sensitive information.";
+  const topSummary =
+    reportSummary.match(/^.*?[.!?](?:\s|$)/)?.[0].trim() ?? reportSummary;
 
   return (
     <main className="bg-slate-50/70">
@@ -142,7 +144,7 @@ export default async function ReportPage({
         <TrustScoreCard
           score={scan.score}
           recommendation={scan.recommendation}
-          summary={reportSummary}
+          summary={topSummary}
           lastChecked={createdAt}
         />
 
