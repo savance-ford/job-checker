@@ -27,6 +27,38 @@ type ScanResponse = {
   issues?: { input?: string[]; inputType?: string[] };
 };
 
+async function readScanResponse(response: Response): Promise<ScanResponse> {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("json")) {
+    try {
+      return JSON.parse(await response.text()) as ScanResponse;
+    } catch {
+      throw new Error(
+        "The scan service returned an unexpected response. Please try again.",
+      );
+    }
+  }
+
+  if (response.status === 413) {
+    throw new Error(
+      "The submitted job information is too large. Shorten it and try again.",
+    );
+  }
+
+  if (response.status === 404) {
+    throw new Error(
+      "The scan service could not be found. Refresh the page and try again.",
+    );
+  }
+
+  throw new Error(
+    response.ok
+      ? "The scan service returned an unexpected response. Please try again."
+      : "The scan service is temporarily unavailable. Please try again.",
+  );
+}
+
 export function ScanForm({
   defaultInputType = "job_description",
   compact = false,
@@ -51,7 +83,7 @@ export function ScanForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input, inputType }),
       });
-      const data = (await response.json()) as ScanResponse;
+      const data = await readScanResponse(response);
 
       if (!response.ok || !data.reportUrl) {
         const validationMessage = data.issues?.input?.[0];
