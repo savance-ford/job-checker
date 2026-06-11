@@ -4,9 +4,9 @@ import {
   createSafeInputSummary,
   sanitizePublicEvidence,
 } from "@/lib/privacy/redact";
+import { normalizeRecommendation } from "@/lib/types";
 import type {
   InputType,
-  Recommendation,
   SavedScan,
   ScanAnalysis,
   ScanReport,
@@ -23,7 +23,7 @@ type PublicScanRow = {
   original_url: string | null;
   final_url: string | null;
   score: number;
-  recommendation: Recommendation;
+  recommendation: string;
   summary: string | null;
   created_at: string;
 };
@@ -32,22 +32,37 @@ export async function saveScanReport(
   analysis: ScanAnalysis,
 ): Promise<SavedScan> {
   const supabase = getSupabaseAdmin();
-  const { data: scan, error: scanError } = await supabase
+  const scanRow = {
+    input_type: analysis.inputType,
+    input_value: analysis.inputValue,
+    company_name: analysis.companyName,
+    job_title: analysis.jobTitle,
+    detected_email: analysis.detectedEmail,
+    original_url: analysis.originalUrl,
+    final_url: analysis.finalUrl,
+    score: analysis.score,
+    recommendation: analysis.recommendation,
+    summary: analysis.summary,
+  };
+  let scanResult = await supabase
     .from("scans")
-    .insert({
-      input_type: analysis.inputType,
-      input_value: analysis.inputValue,
-      company_name: analysis.companyName,
-      job_title: analysis.jobTitle,
-      detected_email: analysis.detectedEmail,
-      original_url: analysis.originalUrl,
-      final_url: analysis.finalUrl,
-      score: analysis.score,
-      recommendation: analysis.recommendation,
-      summary: analysis.summary,
-    })
+    .insert(scanRow)
     .select("id")
     .single();
+
+  if (
+    analysis.recommendation === "Lower Risk" &&
+    scanResult.error?.code === "23514" &&
+    scanResult.error.message.includes("scans_recommendation_check")
+  ) {
+    scanResult = await supabase
+      .from("scans")
+      .insert({ ...scanRow, recommendation: "Apply" })
+      .select("id")
+      .single();
+  }
+
+  const { data: scan, error: scanError } = scanResult;
 
   if (scanError || !scan) {
     throw new Error(scanError?.message ?? "The scan could not be saved.");
@@ -112,7 +127,7 @@ export async function getScanReport(id: string): Promise<ScanReport | null> {
     scan: {
       id: publicScan.id,
       score: publicScan.score,
-      recommendation: publicScan.recommendation,
+      recommendation: normalizeRecommendation(publicScan.recommendation),
       summary: publicScan.summary,
       created_at: publicScan.created_at,
       input_summary: createSafeInputSummary(publicScan),

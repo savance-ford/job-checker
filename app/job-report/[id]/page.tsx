@@ -177,7 +177,7 @@ export default async function ReportPage({
             <section className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="font-semibold text-slate-950">Input summary</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                Only privacy-safe derived details are shown publicly.
+                Only redacted, derived details are shown publicly.
               </p>
               <dl className="mt-4 space-y-4 text-sm">
                 <div>

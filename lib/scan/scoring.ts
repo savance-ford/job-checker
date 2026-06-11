@@ -33,7 +33,7 @@ export function calculateScore(signals: ScanSignal[]) {
 }
 
 export function getRecommendation(score: number): Recommendation {
-  if (score >= 75) return "Apply";
+  if (score >= 75) return "Lower Risk";
   if (score >= 45) return "Verify First";
   return "High Caution";
 }
@@ -45,10 +45,10 @@ export function buildSummary(
   const warnings = signals.filter((signal) => signal.status === "warning");
   const positives = signals.filter((signal) => signal.status === "positive");
 
-  if (recommendation === "Apply") {
-    return `Several reassuring signals were found${
+  if (recommendation === "Lower Risk") {
+    return `This scan found fewer risk signals${
       warnings.length ? ", with a few details still worth checking" : ""
-    }. Confirm the role on the employer's official careers site before sharing sensitive information.`;
+    }. This scan is not a guarantee; confirm the role on the employer's official careers site before sharing sensitive information.`;
   }
 
   if (recommendation === "Verify First") {
@@ -56,8 +56,8 @@ export function buildSummary(
       warnings.length === 1 ? " was" : "s were"
     } found alongside ${positives.length} positive signal${
       positives.length === 1 ? "" : "s"
-    }. Verify the recruiter and opening through an independent company channel.`;
+    }. Verify before applying through an independent company channel.`;
   }
 
-  return `Multiple high-risk or unresolved signals were found. Pause before sending money, banking details, identity documents, or other sensitive information.`;
+  return "Multiple high-risk or unresolved signals were found. High caution is recommended until the employer is independently verified.";
 }

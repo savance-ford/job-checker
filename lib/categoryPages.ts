@@ -173,7 +173,7 @@ export const categoryPages = {
           "Be cautious with required payments. Verify the employer and written terms independently before paying any fee.",
       },
       {
-        question: "Does a professional-looking website make an offer safe?",
+        question: "Does a professional-looking website prove an offer is legitimate?",
         answer:
           "No. A polished site is only one signal. Check the domain, company identity, recruiter contact, and official job listing together.",
       },

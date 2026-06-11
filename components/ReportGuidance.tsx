@@ -4,26 +4,26 @@ const guidance: Record<
   Recommendation,
   { meaning: string; nextStep: string; label: string }
 > = {
-  Apply: {
-    label: "Reassuring signals found",
+  "Lower Risk": {
+    label: "Fewer risk signals found",
     meaning:
-      "The submitted details include several reassuring signals and no major pattern that pushed the score into a caution range. This is still a screening result, not a guarantee.",
+      "The submitted details produced fewer risk signals and no major pattern that pushed the score into a caution range. This scan is not a guarantee, so independent verification still matters.",
     nextStep:
-      "Apply through the official company or ATS link when possible.",
+      "This scan found fewer risk signals, but you should still apply through the official company or ATS link when possible.",
   },
   "Verify First": {
     label: "Verify before applying",
     meaning:
       "The report found a mix of positive details and items that remain unresolved or deserve a closer look. An independent company check should come before sensitive information is shared.",
     nextStep:
-      "Check the company's official careers page before sharing personal information.",
+      "Check the company's official careers page before sharing personal information or continuing the process.",
   },
   "High Caution": {
     label: "High caution recommended",
     meaning:
       "Evidence suggests caution because the submitted details include multiple risk signals or important verification gaps. Pause and confirm the employer through an independent channel.",
     nextStep:
-      "Avoid sending money, banking details, SSN, or personal documents until the employer is verified.",
+      "Avoid sending money, banking details, SSN, identity documents, or personal information until the employer is independently verified.",
   },
 };
 
