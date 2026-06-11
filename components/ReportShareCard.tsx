@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import type { Recommendation } from "@/lib/types";
+import type {
+  Recommendation,
+  SafeInputSummary,
+} from "@/lib/types";
 
 type CopyTarget = "link" | "summary";
 
@@ -29,22 +32,51 @@ export function ReportShareCard({
   recommendation,
   score,
   summary,
+  inputSummary,
+  topEvidence,
 }: {
   recommendation: Recommendation;
   score: number;
   summary: string | null;
+  inputSummary: SafeInputSummary;
+  topEvidence: { label: string; message: string }[];
 }) {
   const [copied, setCopied] = useState<CopyTarget | null>(null);
   const [copyError, setCopyError] = useState(false);
 
   async function handleCopy(target: CopyTarget) {
     const url = window.location.href;
+    const safeDetails = [
+      `Input type: ${inputSummary.inputType.replaceAll("_", " ")}`,
+      inputSummary.companyName
+        ? `Company: ${inputSummary.companyName}`
+        : null,
+      inputSummary.jobTitle ? `Job title: ${inputSummary.jobTitle}` : null,
+      inputSummary.originalUrlDomain
+        ? `Original domain: ${inputSummary.originalUrlDomain}`
+        : null,
+      inputSummary.finalUrlDomain
+        ? `Final domain: ${inputSummary.finalUrlDomain}`
+        : null,
+      inputSummary.emailDomain
+        ? `Email domain: ${inputSummary.emailDomain}`
+        : null,
+    ].filter((value): value is string => Boolean(value));
+    const evidenceText = topEvidence.length
+      ? `Top evidence: ${topEvidence
+          .map((signal) => `${signal.label}: ${signal.message}`)
+          .join(" | ")}`
+      : "Top evidence: No saved evidence signals are available.";
     const value =
       target === "link"
         ? url
-        : `JobCheck report: ${recommendation} (${score}/100). ${
-            summary ?? "Review the evidence checklist for details."
-          } ${url}`;
+        : [
+            `JobCheck report: ${recommendation} (${score}/100).`,
+            summary ?? "Review the evidence checklist for details.",
+            safeDetails.join(" | "),
+            evidenceText,
+            `Report: ${url}`,
+          ].join("\n");
 
     setCopyError(false);
 
@@ -61,7 +93,8 @@ export function ReportShareCard({
     <section className="rounded-2xl border border-teal-200 bg-teal-50 p-6">
       <h2 className="font-semibold text-teal-950">Share this report</h2>
       <p className="mt-1 text-sm leading-6 text-teal-900/70">
-        Send the report to someone you trust for a second opinion.
+        Reports are public to anyone with the link. Share only with people you
+        trust.
       </p>
       <div className="mt-4 grid gap-3">
         <button

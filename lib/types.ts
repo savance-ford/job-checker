@@ -34,19 +34,26 @@ export type ScanAnalysis = {
   signals: ScanSignal[];
 };
 
-export type StoredScan = {
+export type SafeInputSummary = {
+  inputType: InputType;
+  companyName: string | null;
+  jobTitle: string | null;
+  originalUrlDomain: string | null;
+  finalUrlDomain: string | null;
+  emailDomain: string | null;
+};
+
+export type SavedScan = {
   id: string;
-  input_type: InputType;
-  input_value: string;
-  company_name: string | null;
-  job_title: string | null;
-  detected_email: string | null;
-  original_url: string | null;
-  final_url: string | null;
+};
+
+export type PublicStoredScan = {
+  id: string;
   score: number;
   recommendation: Recommendation;
   summary: string | null;
   created_at: string;
+  input_summary: SafeInputSummary;
 };
 
 export type StoredSignal = ScanSignal & {
@@ -56,6 +63,6 @@ export type StoredSignal = ScanSignal & {
 };
 
 export type ScanReport = {
-  scan: StoredScan;
+  scan: PublicStoredScan;
   signals: StoredSignal[];
 };

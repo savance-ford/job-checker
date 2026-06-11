@@ -154,9 +154,10 @@ export function ScanForm({
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div id="job-input-help" className="text-xs leading-5 text-slate-500">
-          <p>
-            Do not include passwords, full SSNs, bank numbers, or identity
-            documents.
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
+            Reports are saved and shareable by link. Do not paste Social
+            Security numbers, banking details, home addresses, passwords, or
+            other sensitive personal information.
           </p>
           <p className="mt-1">
             {input.length
