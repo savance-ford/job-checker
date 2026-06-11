@@ -7,7 +7,13 @@ export const inputTypes = [
 
 export type InputType = (typeof inputTypes)[number];
 
-export type Recommendation = "Apply" | "Verify First" | "High Caution";
+export type Recommendation = "Lower Risk" | "Verify First" | "High Caution";
+
+export function normalizeRecommendation(value: string): Recommendation {
+  if (value === "Lower Risk" || value === "Apply") return "Lower Risk";
+  if (value === "High Caution") return "High Caution";
+  return "Verify First";
+}
 export type SignalStatus = "positive" | "warning" | "unknown";
 export type SignalSeverity = "info" | "low" | "medium" | "high";
 

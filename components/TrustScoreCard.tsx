@@ -1,7 +1,7 @@
 import type { Recommendation } from "@/lib/types";
 
 const recommendationStyles: Record<Recommendation, string> = {
-  Apply: "bg-emerald-100 text-emerald-900",
+  "Lower Risk": "bg-emerald-100 text-emerald-900",
   "Verify First": "bg-amber-100 text-amber-950",
   "High Caution": "bg-rose-100 text-rose-900",
 };

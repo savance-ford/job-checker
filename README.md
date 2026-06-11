@@ -7,6 +7,16 @@ trust report with a score, recommendation, and evidence checklist.
 The checker reports observable signals. It does not claim that a job or company
 is fraudulent, and it does not use an AI model.
 
+## Recommendation scale
+
+- **Lower Risk**: The scan found fewer risk signals. This scan is not a
+  guarantee, and the role should still be confirmed through the official
+  company or ATS link.
+- **Verify First**: Evidence found should be checked through the company's
+  official careers page before continuing.
+- **High Caution**: Multiple risk signals or verification gaps suggest pausing
+  until the employer is independently verified.
+
 ## Stack
 
 - Next.js App Router and TypeScript
@@ -27,6 +37,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SITE_URL=https://your-production-domain.example
 ```
+
+Existing installations should rerun `supabase/schema.sql` to migrate stored
+`Apply` recommendations and the database constraint to `Lower Risk`.
 
 `SUPABASE_SERVICE_ROLE_KEY` is used only by server-only modules. Never expose it
 in browser code or commit `.env.local`.
@@ -89,6 +102,6 @@ Accepted input types are `job_url`, `job_description`, `recruiter_email`, and
 `job_offer`. Successful scans are saved to Supabase and return a
 `/job-report/[id]` URL.
 
-`GET /api/report/[id]` returns a privacy-safe saved report with its signals or a
+`GET /api/report/[id]` returns a redacted saved report with its signals or a
 404 response when the UUID is not found. It does not return `input_value`, full
 email addresses, or full submitted URLs.

@@ -18,11 +18,23 @@ create table if not exists public.scans (
   final_url text,
   score integer not null check (score between 0 and 100),
   recommendation text not null check (
-    recommendation in ('Apply', 'Verify First', 'High Caution')
+    recommendation in ('Lower Risk', 'Verify First', 'High Caution')
   ),
   summary text,
   created_at timestamptz not null default now()
 );
+
+alter table public.scans
+  drop constraint if exists scans_recommendation_check;
+
+update public.scans
+set recommendation = 'Lower Risk'
+where recommendation = 'Apply';
+
+alter table public.scans
+  add constraint scans_recommendation_check check (
+    recommendation in ('Lower Risk', 'Verify First', 'High Caution')
+  );
 
 create table if not exists public.scan_signals (
   id uuid primary key default gen_random_uuid(),
