@@ -1,11 +1,17 @@
 import Link from "next/link";
 
+import { AnswerBlock } from "@/components/AnswerBlock";
+import { FAQSection } from "@/components/FAQSection";
+import { JsonLdFAQ } from "@/components/JsonLdFAQ";
+import { RelatedCheckers } from "@/components/RelatedCheckers";
 import { ScanForm } from "@/components/ScanForm";
+import { WarningSigns } from "@/components/WarningSigns";
 import type { CategoryPageConfig } from "@/lib/categoryPages";
 
 export function CategoryLandingPage({ config }: { config: CategoryPageConfig }) {
   return (
     <main>
+      <JsonLdFAQ faqs={config.faqs} />
       <section className="border-b border-slate-200 bg-[radial-gradient(circle_at_top_left,_#ccfbf1,_transparent_38%),linear-gradient(#f8fafc,#fff)]">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
@@ -42,6 +48,10 @@ export function CategoryLandingPage({ config }: { config: CategoryPageConfig }) 
         </div>
       </section>
 
+      <div className="mx-auto max-w-5xl px-5 pt-12 sm:px-8 sm:pt-16">
+        <AnswerBlock title={config.answerTitle} steps={config.answerSteps} />
+      </div>
+
       <section className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr]">
           <div>
@@ -52,22 +62,7 @@ export function CategoryLandingPage({ config }: { config: CategoryPageConfig }) 
               {config.detail}
             </p>
           </div>
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-amber-800">
-              Warning signs to review
-            </p>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-amber-950">
-              {config.warningSigns.map((warning) => (
-                <li key={warning} className="flex gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-2 size-1.5 shrink-0 rounded-full bg-amber-600"
-                  />
-                  {warning}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <WarningSigns signs={config.warningSigns} />
         </div>
 
         <div className="mt-10 rounded-2xl border border-teal-200 bg-teal-50 p-6 text-teal-950">
@@ -80,36 +75,10 @@ export function CategoryLandingPage({ config }: { config: CategoryPageConfig }) 
         </div>
       </section>
 
-      <section className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-teal-700">
-            Frequently asked questions
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
-            Questions about this check
-          </h2>
-          <div className="mt-8 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-6">
-            {config.faqs.map((faq) => (
-              <details key={faq.question} className="group py-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-slate-950">
-                  {faq.question}
-                  <span
-                    aria-hidden="true"
-                    className="text-xl font-normal text-teal-700 transition group-open:rotate-45"
-                  >
-                    +
-                  </span>
-                </summary>
-                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                  {faq.answer}
-                </p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FAQSection faqs={config.faqs} />
+      <RelatedCheckers links={config.relatedCheckers} />
 
-      <section className="mx-auto max-w-4xl px-5 py-12 text-center sm:px-8">
+      <section className="mx-auto max-w-4xl px-5 pb-12 text-center sm:px-8">
         <Link
           href="/"
           className="inline-flex font-semibold text-teal-800 underline decoration-teal-300 underline-offset-4"
