@@ -1,24 +1,6 @@
 import type { Metadata } from "next";
 
-function normalizeSiteUrl(value: string | undefined) {
-  if (!value) return null;
-
-  const withProtocol = /^https?:\/\//i.test(value)
-    ? value
-    : `https://${value}`;
-
-  try {
-    return new URL(withProtocol).origin;
-  } catch {
-    return null;
-  }
-}
-
-export const siteUrl =
-  normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL) ??
-  normalizeSiteUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL) ??
-  normalizeSiteUrl(process.env.VERCEL_URL) ??
-  "http://localhost:3000";
+import { absoluteUrl, siteConfig } from "@/lib/site";
 
 export function createPageMetadata({
   title,
@@ -29,18 +11,20 @@ export function createPageMetadata({
   description: string;
   path: `/${string}` | "/";
 }): Metadata {
+  const canonicalUrl = absoluteUrl(path);
+
   return {
     title,
     description,
     alternates: {
-      canonical: path,
+      canonical: canonicalUrl,
     },
     openGraph: {
       type: "website",
-      siteName: "JobCheck",
+      siteName: siteConfig.name,
       title,
       description,
-      url: path,
+      url: canonicalUrl,
     },
     twitter: {
       card: "summary",
