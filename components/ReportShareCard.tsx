@@ -61,6 +61,12 @@ export function ReportShareCard({
       inputSummary.emailDomain
         ? `Email domain: ${inputSummary.emailDomain}`
         : null,
+      inputSummary.companyWebsiteDomain
+        ? `Company website domain: ${inputSummary.companyWebsiteDomain}`
+        : null,
+      inputSummary.careersPageUrl
+        ? `Careers page candidate: ${inputSummary.careersPageUrl}`
+        : null,
     ].filter((value): value is string => Boolean(value));
     const evidenceText = topEvidence.length
       ? `Top evidence: ${topEvidence

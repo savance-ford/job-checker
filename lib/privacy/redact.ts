@@ -7,6 +7,8 @@ type SafeInputSource = {
   detected_email?: string | null;
   original_url?: string | null;
   final_url?: string | null;
+  company_website_domain?: string | null;
+  careers_page_url?: string | null;
 };
 
 const EMAIL_PATTERN = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
@@ -40,6 +42,20 @@ export function safeDomainFromUrl(url: string): string | null {
   }
 }
 
+export function safePublicUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) return null;
+    parsed.username = "";
+    parsed.password = "";
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 export function createSafeInputSummary(
   scan: SafeInputSource,
 ): SafeInputSummary {
@@ -53,6 +69,11 @@ export function createSafeInputSummary(
     finalUrlDomain: scan.final_url ? safeDomainFromUrl(scan.final_url) : null,
     emailDomain: scan.detected_email
       ? extractEmailDomain(scan.detected_email)
+      : null,
+    companyWebsiteDomain:
+      scan.company_website_domain?.trim().toLowerCase() || null,
+    careersPageUrl: scan.careers_page_url
+      ? safePublicUrl(scan.careers_page_url)
       : null,
   };
 }

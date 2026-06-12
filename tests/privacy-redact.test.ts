@@ -6,6 +6,7 @@ import {
   extractEmailDomain,
   redactEmail,
   safeDomainFromUrl,
+  safePublicUrl,
   sanitizePublicEvidence,
 } from "../lib/privacy/redact.ts";
 
@@ -53,6 +54,15 @@ test("invalid URLs return null without throwing", () => {
   assert.equal(safeDomainFromUrl(""), null);
 });
 
+test("safePublicUrl removes credentials, query parameters, and fragments", () => {
+  assert.equal(
+    safePublicUrl(
+      "https://user:pass@company.com/careers?source=email#openings",
+    ),
+    "https://company.com/careers",
+  );
+});
+
 test("createSafeInputSummary never returns input_value", () => {
   const source = {
     input_type: "recruiter_email" as const,
@@ -63,6 +73,9 @@ test("createSafeInputSummary never returns input_value", () => {
     original_url:
       "https://company.com/jobs?id=123&utm_source=test",
     final_url: "https://jobs.lever.co/example/job-id?source=email",
+    company_website_domain: "company.com",
+    careers_page_url:
+      "https://company.com/careers?utm_source=report#openings",
   };
 
   const summary = createSafeInputSummary(source);
@@ -75,11 +88,14 @@ test("createSafeInputSummary never returns input_value", () => {
     originalUrlDomain: "company.com",
     finalUrlDomain: "jobs.lever.co",
     emailDomain: "example.com",
+    companyWebsiteDomain: "company.com",
+    careersPageUrl: "https://company.com/careers",
   });
   assert.equal("input_value" in summary, false);
   assert.equal(serialized.includes(source.input_value), false);
   assert.equal(serialized.includes(source.detected_email), false);
   assert.equal(serialized.includes(source.original_url), false);
+  assert.equal(serialized.includes("?utm_source=report"), false);
 });
 
 test("sanitizePublicEvidence removes full emails and URL details", () => {

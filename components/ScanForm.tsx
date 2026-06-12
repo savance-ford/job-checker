@@ -24,7 +24,11 @@ const placeholders: Record<InputType, string> = {
 type ScanResponse = {
   reportUrl?: string;
   error?: string;
-  issues?: { input?: string[]; inputType?: string[] };
+  issues?: {
+    input?: string[];
+    inputType?: string[];
+    companyWebsite?: string[];
+  };
 };
 
 async function readScanResponse(response: Response): Promise<ScanResponse> {
@@ -69,6 +73,7 @@ export function ScanForm({
   const router = useRouter();
   const [inputType, setInputType] = useState<InputType>(defaultInputType);
   const [input, setInput] = useState("");
+  const [companyWebsite, setCompanyWebsite] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,12 +86,17 @@ export function ScanForm({
       const response = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, inputType }),
+        body: JSON.stringify({
+          input,
+          inputType,
+          companyWebsite: companyWebsite.trim() || undefined,
+        }),
       });
       const data = await readScanResponse(response);
 
       if (!response.ok || !data.reportUrl) {
-        const validationMessage = data.issues?.input?.[0];
+        const validationMessage =
+          data.issues?.input?.[0] ?? data.issues?.companyWebsite?.[0];
         throw new Error(validationMessage ?? data.error ?? "The scan could not be completed.");
       }
 
@@ -151,6 +161,30 @@ export function ScanForm({
         required
         className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-base leading-7 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:bg-white focus:ring-4 focus:ring-teal-100"
       />
+
+      <label
+        htmlFor="company-website"
+        className="mt-5 block text-sm font-semibold text-slate-800"
+      >
+        Company website, optional
+      </label>
+      <input
+        id="company-website"
+        type="url"
+        inputMode="url"
+        value={companyWebsite}
+        onChange={(event) => setCompanyWebsite(event.target.value)}
+        placeholder="https://example.com"
+        aria-describedby="company-website-help"
+        className="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:bg-white focus:ring-4 focus:ring-teal-100"
+      />
+      <p
+        id="company-website-help"
+        className="mt-2 text-xs leading-5 text-slate-500"
+      >
+        Providing the employer&apos;s official website helps check whether the
+        job or ATS link appears connected to the company.
+      </p>
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div id="job-input-help" className="text-xs leading-5 text-slate-500">

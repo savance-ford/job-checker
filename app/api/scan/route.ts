@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { normalizeCompanyWebsiteUrl } from "@/lib/company/url";
 import { analyzeInput } from "@/lib/scan/analyzeInput";
 import { saveScanReport } from "@/lib/supabase/reports";
 import { SupabaseConfigurationError } from "@/lib/supabase/server";
@@ -12,6 +13,20 @@ const scanRequestSchema = z.object({
     .min(10, "Enter at least 10 characters to run a useful check.")
     .max(50_000, "Input must be 50,000 characters or fewer."),
   inputType: z.enum(inputTypes),
+  companyWebsite: z.preprocess(
+    (value) =>
+      typeof value === "string" && value.trim() === "" ? undefined : value,
+    z
+      .string()
+      .trim()
+      .max(2_048, "Company website URL must be 2,048 characters or fewer.")
+      .url("Enter a valid company website URL.")
+      .refine(
+        (value) => normalizeCompanyWebsiteUrl(value) !== null,
+        "Company website must use HTTP or HTTPS.",
+      )
+      .optional(),
+  ),
 });
 
 export async function POST(request: Request) {
@@ -35,7 +50,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const analysis = await analyzeInput(parsed.data.input, parsed.data.inputType);
+    const normalizedCompanyWebsite = parsed.data.companyWebsite
+      ? normalizeCompanyWebsiteUrl(parsed.data.companyWebsite)?.toString()
+      : undefined;
+    const analysis = await analyzeInput(
+      parsed.data.input,
+      parsed.data.inputType,
+      normalizedCompanyWebsite,
+    );
     const scan = await saveScanReport(analysis);
 
     return Response.json(

@@ -30,7 +30,7 @@ function isPrivateIp(address: string) {
   );
 }
 
-async function assertSafeUrl(url: URL) {
+export async function assertSafeUrl(url: URL) {
   if (!["http:", "https:"].includes(url.protocol)) {
     throw new Error("Only HTTP and HTTPS links can be checked.");
   }
