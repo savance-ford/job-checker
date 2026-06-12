@@ -35,7 +35,7 @@ is fraudulent, and it does not use an AI model.
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-NEXT_PUBLIC_SITE_URL=https://your-production-domain.example
+NEXT_PUBLIC_SITE_URL=https://jobtrustcheck.com
 ```
 
 Existing installations should rerun `supabase/schema.sql` to migrate stored
@@ -50,8 +50,8 @@ client-side use. This MVP stores and reads reports through the server-side
 service role because row-level security is enabled without public policies.
 
 `NEXT_PUBLIC_SITE_URL` sets the canonical, Open Graph, sitemap, and robots
-origin. When it is not set, Vercel's production or deployment URL is used
-automatically. Local development falls back to `http://localhost:3000`.
+origin. Production builds fall back to `https://jobtrustcheck.com` when it is
+not set. Local development falls back to `http://localhost:3000`.
 
 ## Environment variables
 
@@ -60,9 +60,8 @@ automatically. Local development falls back to `http://localhost:3000`.
 - `SUPABASE_SERVICE_ROLE_KEY`: The server-only key used to save and read
   reports. Never expose this value in browser code.
 - `NEXT_PUBLIC_SITE_URL`: The production origin used for canonical URLs,
-  Open Graph metadata, `sitemap.xml`, and `robots.txt`, such as
-  `https://yourdomain.com`. Set this explicitly when using a custom domain;
-  otherwise Vercel's automatic deployment variables are used.
+  Open Graph metadata, `sitemap.xml`, and `robots.txt`. Set it to
+  `https://jobtrustcheck.com`.
 
 Never commit or share `.env.local`. Rotate service role keys if exposed.
 
@@ -76,8 +75,7 @@ Never commit or share `.env.local`. Rotate service role keys if exposed.
 4. In the Vercel project settings, add these environment variables:
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
    `SUPABASE_SERVICE_ROLE_KEY`, and `NEXT_PUBLIC_SITE_URL`.
-5. Set `NEXT_PUBLIC_SITE_URL` to the final production origin with no path, for
-   example `https://yourdomain.com`.
+5. Set `NEXT_PUBLIC_SITE_URL=https://jobtrustcheck.com`.
 6. Deploy the project. Redeploy after changing any environment variable so the
    production metadata is rebuilt with the correct origin.
 7. Open `/sitemap.xml` and confirm every URL uses the production domain and no
@@ -87,6 +85,11 @@ Never commit or share `.env.local`. Rotate service role keys if exposed.
 9. Submit one test scan and confirm it saves successfully.
 10. Open the generated report link and confirm the report loads, hides the raw
     submitted input, and includes `noindex` metadata.
+
+Add both `jobtrustcheck.com` and `www.jobtrustcheck.com` in Vercel Domains. Set
+`jobtrustcheck.com` as the primary and canonical domain, and redirect
+`www.jobtrustcheck.com` to `jobtrustcheck.com`. Use the non-www URL in Google
+Search Console, sitemap submissions, and canonical metadata.
 
 Keep `.env.local` on your development machine only. Vercel environment
 variables should be configured in the project settings, not committed to the
