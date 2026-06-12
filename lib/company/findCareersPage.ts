@@ -1,7 +1,11 @@
 import "server-only";
 
-import type { AtsDetectionResult } from "@/lib/ats/types";
+import type {
+  AtsDetectionResult,
+  AtsProvider,
+} from "@/lib/ats/types";
 import { detectAts } from "@/lib/ats/detectAts";
+import { extractCareersLinks } from "@/lib/company/extractCareersLinks";
 import type { CareersPageVerificationResult } from "@/lib/company/types";
 import { requestPublicUrl } from "@/lib/company/verifyCompanyWebsite";
 
@@ -14,37 +18,16 @@ const COMMON_CAREERS_PATHS = [
   "/work-with-us",
 ] as const;
 
-const CAREERS_TEXT_PATTERN = /\b(careers?|jobs?|join\s+us|work\s+with\s+us|openings?)\b/i;
 const MAX_HOMEPAGE_HTML_LENGTH = 1_000_000;
 const MAX_CAREERS_CANDIDATES = 12;
-
-function stripTags(value: string) {
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-}
-
-export function extractCareersLinks(html: string, baseUrl: URL) {
-  const links: URL[] = [];
-  const anchorPattern =
-    /<a\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi;
-
-  for (const match of html.matchAll(anchorPattern)) {
-    const href = match[2]?.trim();
-    const text = stripTags(match[3] ?? "");
-    if (!href || !CAREERS_TEXT_PATTERN.test(`${href} ${text}`)) continue;
-
-    try {
-      const candidate = new URL(href, baseUrl);
-      if (!["http:", "https:"].includes(candidate.protocol)) continue;
-      candidate.hash = "";
-      candidate.search = "";
-      links.push(candidate);
-    } catch {
-      // Ignore malformed links found in third-party HTML.
-    }
-  }
-
-  return links;
-}
+const ATS_PROVIDER_DOMAINS: Record<
+  Exclude<AtsProvider, "unknown">,
+  string
+> = {
+  greenhouse: "greenhouse.io",
+  lever: "jobs.lever.co",
+  ashby: "jobs.ashbyhq.com",
+};
 
 function atsConnection(
   html: string,
@@ -54,15 +37,10 @@ function atsConnection(
   if (atsDetection.provider === "unknown") return null;
 
   const pageDetection = detectAts(careersUrl);
+  const targetDomain = ATS_PROVIDER_DOMAINS[atsDetection.provider];
   const providerFound =
     pageDetection.provider === atsDetection.provider ||
-    html.toLowerCase().includes(
-      atsDetection.provider === "greenhouse"
-        ? "greenhouse.io"
-        : atsDetection.provider === "lever"
-          ? "jobs.lever.co"
-          : "jobs.ashbyhq.com",
-    );
+    html.toLowerCase().includes(targetDomain);
 
   if (!providerFound) return null;
 
@@ -108,65 +86,58 @@ export async function findCareersPage(
     const commonLinks = COMMON_CAREERS_PATHS.map(
       (path) => new URL(path, homepage.finalUrl.origin),
     );
+    const seenCandidates = new Set<string>();
     const candidates = [...discoveredLinks, ...commonLinks]
-      .filter(
-        (candidate, index, all) =>
-          all.findIndex((item) => item.toString() === candidate.toString()) ===
-          index,
-      )
+      .filter((candidate) => {
+        const value = candidate.toString();
+        if (seenCandidates.has(value)) return false;
+        seenCandidates.add(value);
+        return true;
+      })
       .slice(0, MAX_CAREERS_CANDIDATES);
-    const candidateResults = await Promise.all(
-      candidates.map(async (
-        candidate,
-      ): Promise<CareersPageVerificationResult | null> => {
-        try {
-          const result = await requestPublicUrl(candidate, "GET");
-          if (
-            result.response.status < 200 ||
-            result.response.status >= 400
-          ) {
-            return null;
-          }
-
-          const careersUrl = new URL(result.finalUrl);
-          careersUrl.search = "";
-          careersUrl.hash = "";
-          const html = (result.html ?? "").slice(
-            0,
-            MAX_HOMEPAGE_HTML_LENGTH,
-          );
-          const connection =
-            atsConnection(html, careersUrl, atsDetection) ??
-            atsConnection(homepageHtml, homepage.finalUrl, atsDetection);
-          const evidence = [`Careers page: ${careersUrl.toString()}`];
-
-          if (connection) {
-            evidence.push(`ATS provider: ${connection.provider}`);
-            if (connection.slug) {
-              evidence.push(`ATS company slug: ${connection.slug}`);
-            }
-          }
-
-          return {
-            attempted: true,
-            found: true,
-            careersUrl: careersUrl.toString(),
-            status: "found",
-            message:
-              "A careers or jobs page candidate was found on the provided company website.",
-            evidence,
-            linkedAtsProvider: connection?.provider,
-            linkedAtsSlug: connection?.slug,
-          };
-        } catch {
-          return null;
+    for (const candidate of candidates) {
+      try {
+        const result = await requestPublicUrl(candidate, "GET");
+        if (
+          result.response.status < 200 ||
+          result.response.status >= 400
+        ) {
+          continue;
         }
-      }),
-    );
-    const foundResult = candidateResults.find((result) => result !== null);
 
-    if (foundResult) {
-      return foundResult;
+        const careersUrl = new URL(result.finalUrl);
+        careersUrl.search = "";
+        careersUrl.hash = "";
+        const html = (result.html ?? "").slice(
+          0,
+          MAX_HOMEPAGE_HTML_LENGTH,
+        );
+        const connection =
+          atsConnection(html, careersUrl, atsDetection) ??
+          atsConnection(homepageHtml, homepage.finalUrl, atsDetection);
+        const evidence = [`Careers page: ${careersUrl.toString()}`];
+
+        if (connection) {
+          evidence.push(`ATS provider: ${connection.provider}`);
+          if (connection.slug) {
+            evidence.push(`ATS company slug: ${connection.slug}`);
+          }
+        }
+
+        return {
+          attempted: true,
+          found: true,
+          careersUrl: careersUrl.toString(),
+          status: "found",
+          message:
+            "A careers or jobs page candidate was found on the provided company website.",
+          evidence,
+          linkedAtsProvider: connection?.provider,
+          linkedAtsSlug: connection?.slug,
+        };
+      } catch {
+        continue;
+      }
     }
 
     return {
