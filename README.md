@@ -50,7 +50,8 @@ client-side use. This MVP stores and reads reports through the server-side
 service role because row-level security is enabled without public policies.
 
 `NEXT_PUBLIC_SITE_URL` sets the canonical, Open Graph, sitemap, and robots
-origin. It falls back to `http://localhost:3000` for local development.
+origin. When it is not set, Vercel's production or deployment URL is used
+automatically. Local development falls back to `http://localhost:3000`.
 
 ## Environment variables
 
@@ -60,7 +61,8 @@ origin. It falls back to `http://localhost:3000` for local development.
   reports. Never expose this value in browser code.
 - `NEXT_PUBLIC_SITE_URL`: The production origin used for canonical URLs,
   Open Graph metadata, `sitemap.xml`, and `robots.txt`, such as
-  `https://yourdomain.com`.
+  `https://yourdomain.com`. Set this explicitly when using a custom domain;
+  otherwise Vercel's automatic deployment variables are used.
 
 Never commit or share `.env.local`. Rotate service role keys if exposed.
 
