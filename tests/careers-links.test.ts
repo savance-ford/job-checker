@@ -75,3 +75,16 @@ test("extractCareersLinks ignores oversized href values", () => {
 
   assert.deepEqual(links, []);
 });
+
+test("extractCareersLinks handles many malformed anchors without spanning", () => {
+  const malformed = '<a href="/careers" '.repeat(5_000);
+  const links = extractCareersLinks(
+    `${malformed}<a href="/jobs">Jobs</a>`,
+    baseUrl,
+  );
+
+  assert.deepEqual(
+    links.map((link) => link.toString()),
+    ["https://example.com/jobs"],
+  );
+});
