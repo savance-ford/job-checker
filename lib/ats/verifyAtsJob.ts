@@ -73,7 +73,7 @@ async function fetchJson(url: string) {
   const response = await fetch(url, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "JobCheck/1.0",
+      "User-Agent": "JobTrustCheck/1.0",
     },
     cache: "no-store",
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),

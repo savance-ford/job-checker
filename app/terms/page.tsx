@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = createPageMetadata({
   title: "Terms of Use",
   description:
-    "Review the terms for using JobCheck's informational job risk signals, recommendations, and shareable public reports.",
+    "Review the terms for using JobTrustCheck's informational job risk signals, recommendations, and shareable public reports.",
   path: "/terms",
 });
 
@@ -14,7 +14,7 @@ const sections = [
   {
     title: "Informational use only",
     paragraphs: [
-      "JobCheck provides informational risk signals and verification signals only. Scan results are automated screening aids and are not employment, legal, financial, or fraud-detection advice or guarantees.",
+      "JobTrustCheck provides informational risk signals and verification signals only. Scan results are automated screening aids and are not employment, legal, financial, or fraud-detection advice or guarantees.",
       "There is no guarantee that a score, recommendation, signal, or report is accurate, complete, current, or suitable for a particular decision.",
     ],
   },
@@ -40,8 +40,8 @@ export default function TermsPage() {
   return (
     <InformationPage
       eyebrow="Terms"
-      title="Terms for using JobCheck"
-      intro="Use JobCheck as one source of information, then verify important details through independent official channels."
+      title="Terms for using JobTrustCheck"
+      intro="Use JobTrustCheck as one source of information, then verify important details through independent official channels."
       sections={sections}
     />
   );

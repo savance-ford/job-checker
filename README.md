@@ -1,6 +1,6 @@
-# JobCheck
+# JobTrustCheck
 
-JobCheck is a lean, deterministic job-verification MVP. A visitor can submit a
+JobTrustCheck is a lean, deterministic job-verification MVP. A visitor can submit a
 job URL, job description, recruiter email, or offer message and receive a saved
 trust report with a score, recommendation, and evidence checklist.
 
@@ -124,7 +124,7 @@ npm run build
   and job title, email domain, and URL domains.
 - Users should not paste Social Security numbers, banking details, home
   addresses, passwords, or other sensitive personal information.
-- JobCheck provides risk signals, not legal or fraud determinations.
+- JobTrustCheck provides risk signals, not legal or fraud determinations.
 
 Privacy helper coverage is available through `npm test`. For a manual check,
 open a saved report and confirm that it shows "Submitted content hidden for
@@ -137,7 +137,7 @@ Company website verification works best when the user provides the employer's
 official website in the optional scan field. This MVP does not use a search API
 to discover a company website.
 
-When a website is provided, JobCheck checks whether it is reachable, reviews
+When a website is provided, JobTrustCheck checks whether it is reachable, reviews
 common careers paths and relevant homepage links, and looks for a connection to
 the detected Greenhouse, Lever, or Ashby provider where possible. Network
 errors and missing careers pages are treated as incomplete evidence rather than

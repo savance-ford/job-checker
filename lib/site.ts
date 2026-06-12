@@ -34,7 +34,7 @@ const siteUrl =
     : PRODUCTION_SITE_URL);
 
 export const siteConfig = {
-  name: "JobCheck",
+  name: "JobTrustCheck",
   description:
     "Check job posts, recruiter emails, and offer messages for evidence-based risk signals before you apply.",
   url: siteUrl,

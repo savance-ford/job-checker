@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = createPageMetadata({
   title: "Job Trust Report Disclaimer",
   description:
-    "Understand the limits of JobCheck's automated risk and verification signals and how to independently verify an employer.",
+    "Understand the limits of JobTrustCheck's automated risk and verification signals and how to independently verify an employer.",
   path: "/disclaimer",
 });
 
@@ -14,7 +14,7 @@ const sections = [
   {
     title: "What the tool reports",
     paragraphs: [
-      "JobCheck highlights risk signals and verification signals found in submitted job posts, URLs, recruiter emails, and offer text. A Lower Risk, Verify First, or High Caution recommendation summarizes those signals; it is not a guarantee.",
+      "JobTrustCheck highlights risk signals and verification signals found in submitted job posts, URLs, recruiter emails, and offer text. A Lower Risk, Verify First, or High Caution recommendation summarizes those signals; it is not a guarantee.",
     ],
   },
   {
@@ -37,7 +37,7 @@ export default function DisclaimerPage() {
     <InformationPage
       eyebrow="Disclaimer"
       title="A scan is a starting point, not a final determination"
-      intro="JobCheck helps organize details worth checking, but it cannot replace independent verification or professional advice."
+      intro="JobTrustCheck helps organize details worth checking, but it cannot replace independent verification or professional advice."
       sections={sections}
     />
   );

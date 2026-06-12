@@ -75,7 +75,7 @@ async function requestUrl(url: URL, method: "HEAD" | "GET") {
     method,
     redirect: "manual",
     headers: {
-      "User-Agent": "JobChecker/1.0",
+      "User-Agent": "JobTrustCheck/1.0",
       Accept: "text/html,application/xhtml+xml",
     },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),

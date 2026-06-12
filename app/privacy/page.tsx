@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = createPageMetadata({
   title: "Privacy Policy",
   description:
-    "Read how the JobCheck MVP handles submitted scan inputs, generated signals, public report links, and sensitive personal information.",
+    "Read how the JobTrustCheck MVP handles submitted scan inputs, generated signals, public report links, and sensitive personal information.",
   path: "/privacy",
 });
 
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
     <InformationPage
       eyebrow="Privacy"
       title="Privacy behavior for scans and public reports"
-      intro="This page explains the general privacy behavior of the current JobCheck MVP."
+      intro="This page explains the general privacy behavior of the current JobTrustCheck MVP."
       sections={sections}
       note="This is a general MVP privacy policy and is not legal advice."
     />

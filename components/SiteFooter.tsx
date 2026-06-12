@@ -30,7 +30,7 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-slate-200 bg-slate-950 text-slate-300">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1.1fr_1.4fr_0.7fr]">
         <div>
-          <div className="mb-3 font-semibold text-white">JobCheck</div>
+          <div className="mb-3 font-semibold text-white">JobTrustCheck</div>
           <p className="max-w-lg text-sm leading-6 text-slate-400">
             Evidence-based checks that help job seekers spot details worth
             verifying. A report is a screening aid, not a guarantee about an

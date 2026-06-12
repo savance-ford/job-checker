@@ -83,7 +83,7 @@ export function CategoryLandingPage({ config }: { config: CategoryPageConfig }) 
           href="/"
           className="inline-flex font-semibold text-teal-800 underline decoration-teal-300 underline-offset-4"
         >
-          See how JobCheck works
+          See how JobTrustCheck works
         </Link>
       </section>
     </main>

@@ -17,7 +17,7 @@ export function SiteHeader() {
               <path d="m5 12 4 4L19 6" />
             </svg>
           </span>
-          JobCheck
+          JobTrustCheck
         </Link>
         <nav aria-label="Main navigation" className="flex items-center gap-5 text-sm">
           <Link

@@ -77,7 +77,7 @@ export function ReportShareCard({
       target === "link"
         ? url
         : [
-            `JobCheck report: ${recommendation} (${score}/100).`,
+            `JobTrustCheck report: ${recommendation} (${score}/100).`,
             summary ?? "Review the evidence checklist for details.",
             safeDetails.join(" | "),
             evidenceText,

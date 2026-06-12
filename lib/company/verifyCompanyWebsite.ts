@@ -38,7 +38,7 @@ async function defaultRequestPublicUrl(
       method,
       redirect: "manual",
       headers: {
-        "User-Agent": "JobCheck/1.0",
+        "User-Agent": "JobTrustCheck/1.0",
         Accept: "text/html,application/xhtml+xml",
       },
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
