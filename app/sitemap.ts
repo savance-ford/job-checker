@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { siteUrl } from "@/lib/seo";
+import { absoluteUrl } from "@/lib/site";
 
 const publicPaths = [
   "/",
@@ -21,7 +21,7 @@ const publicPaths = [
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return publicPaths.map((path) => ({
-    url: new URL(path, siteUrl).toString(),
+    url: absoluteUrl(path),
     changeFrequency: path === "/" ? "weekly" : "monthly",
     priority: path === "/" ? 1 : path.includes("checker") ? 0.8 : 0.5,
   }));

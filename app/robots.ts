@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { siteUrl } from "@/lib/seo";
+import { absoluteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/job-report/", "/api/"],
     },
-    sitemap: new URL("/sitemap.xml", siteUrl).toString(),
+    sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

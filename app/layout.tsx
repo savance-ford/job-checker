@@ -2,19 +2,18 @@ import type { Metadata } from "next";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { siteUrl } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "JobCheck | Evidence-based job verification",
-    template: "%s | JobCheck",
+    default: `${siteConfig.name} | Evidence-based job verification`,
+    template: `%s | ${siteConfig.name}`,
   },
-  description:
-    "Check job posts, recruiter emails, and offer messages for evidence-based risk signals before you apply.",
-  applicationName: "JobCheck",
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
 };
 
 export default function RootLayout({

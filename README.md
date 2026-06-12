@@ -49,8 +49,48 @@ The anon key is included for standard Supabase project configuration and future
 client-side use. This MVP stores and reads reports through the server-side
 service role because row-level security is enabled without public policies.
 
-`NEXT_PUBLIC_SITE_URL` sets the canonical and Open Graph origin. On Vercel, the
-app falls back to the production deployment hostname when this value is not set.
+`NEXT_PUBLIC_SITE_URL` sets the canonical, Open Graph, sitemap, and robots
+origin. When it is not set, Vercel's production or deployment URL is used
+automatically. Local development falls back to `http://localhost:3000`.
+
+## Environment variables
+
+- `NEXT_PUBLIC_SUPABASE_URL`: The URL for the Supabase project.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: The project's public anon key.
+- `SUPABASE_SERVICE_ROLE_KEY`: The server-only key used to save and read
+  reports. Never expose this value in browser code.
+- `NEXT_PUBLIC_SITE_URL`: The production origin used for canonical URLs,
+  Open Graph metadata, `sitemap.xml`, and `robots.txt`, such as
+  `https://yourdomain.com`. Set this explicitly when using a custom domain;
+  otherwise Vercel's automatic deployment variables are used.
+
+Never commit or share `.env.local`. Rotate service role keys if exposed.
+
+## Deploying to Vercel
+
+1. Create a Supabase project.
+2. Open the Supabase SQL editor and run
+   [`supabase/schema.sql`](supabase/schema.sql). Existing projects should rerun
+   the schema file so its idempotent migrations are applied.
+3. Import this repository into Vercel.
+4. In the Vercel project settings, add these environment variables:
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY`, and `NEXT_PUBLIC_SITE_URL`.
+5. Set `NEXT_PUBLIC_SITE_URL` to the final production origin with no path, for
+   example `https://yourdomain.com`.
+6. Deploy the project. Redeploy after changing any environment variable so the
+   production metadata is rebuilt with the correct origin.
+7. Open `/sitemap.xml` and confirm every URL uses the production domain and no
+   `/job-report/` URL is included.
+8. Open `/robots.txt` and confirm it points to the production sitemap and
+   disallows `/job-report/`.
+9. Submit one test scan and confirm it saves successfully.
+10. Open the generated report link and confirm the report loads, hides the raw
+    submitted input, and includes `noindex` metadata.
+
+Keep `.env.local` on your development machine only. Vercel environment
+variables should be configured in the project settings, not committed to the
+repository.
 
 ## Run locally
 
