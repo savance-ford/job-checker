@@ -45,22 +45,22 @@ function getAtsVerificationSignal(
 
   if (result.status === "verified") {
     return {
-      label: "Job found on ATS",
+      label: "Job found in public ATS feed",
       status: "positive",
       severity: "high",
       message:
-        "This job was found in the public job feed for the detected ATS.",
+        "The exact job was found in the detected ATS public feed. Public ATS verification is stronger evidence than HTTPS.",
       evidence,
     };
   }
 
   if (result.status === "not_found") {
     return {
-      label: "Job not found on ATS",
+      label: "Could not verify exact job",
       status: "warning",
       severity: "low",
       message:
-        "The apply link used a known ATS, but this exact job could not be confirmed in the public job feed.",
+        "A known ATS was detected, but this exact job was not found in its public feed. Verify the opening on the employer's official careers page.",
       evidence,
     };
   }
@@ -70,7 +70,7 @@ function getAtsVerificationSignal(
     status: "unknown",
     severity: "info",
     message:
-      "The ATS was detected, but the app could not complete public job verification.",
+      "The ATS was detected, but a network or feed-format issue prevented exact job verification. No score penalty was applied.",
     evidence,
   };
 }
@@ -103,10 +103,11 @@ export function detectSignals(context: SignalContext) {
   const signals = [
     signal(
       {
-        label: "Secure job link",
+        label: "Secure connection detected",
         status: "positive",
-        severity: "medium",
-        message: "The job link uses HTTPS.",
+        severity: "info",
+        message:
+          "The link uses HTTPS, but HTTPS alone does not verify that a job is legitimate.",
         evidence: destinationUrl?.origin,
       },
       destinationUrl?.protocol === "https:",
