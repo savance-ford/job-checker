@@ -22,17 +22,43 @@ type PublicScanRow = {
   detected_email: string | null;
   original_url: string | null;
   final_url: string | null;
+  company_website_domain?: string | null;
+  careers_page_url?: string | null;
   score: number;
   recommendation: string;
   summary: string | null;
   created_at: string;
 };
 
+function hasMissingCompanyColumns(error: { code?: string; message?: string } | null) {
+  return Boolean(
+    error &&
+      (error.code === "PGRST204" ||
+        /company_website|careers_page/i.test(error.message ?? "")),
+  );
+}
+
+function evidenceValue(
+  signals: { label: string; evidence?: string | null }[],
+  labels: string[],
+  prefix: string,
+) {
+  const signal = signals.find(
+    (item) => labels.includes(item.label) && item.evidence,
+  );
+  const part = signal?.evidence
+    ?.split(";")
+    .map((value) => value.trim())
+    .find((value) => value.startsWith(prefix));
+
+  return part?.slice(prefix.length).trim() || null;
+}
+
 export async function saveScanReport(
   analysis: ScanAnalysis,
 ): Promise<SavedScan> {
   const supabase = getSupabaseAdmin();
-  const scanRow = {
+  const legacyScanRow = {
     input_type: analysis.inputType,
     input_value: analysis.inputValue,
     company_name: analysis.companyName,
@@ -44,11 +70,28 @@ export async function saveScanReport(
     recommendation: analysis.recommendation,
     summary: analysis.summary,
   };
+  const scanRow = {
+    ...legacyScanRow,
+    company_website_url: analysis.companyWebsiteUrl,
+    company_website_domain: analysis.companyWebsiteDomain,
+    careers_page_url: analysis.careersPageUrl,
+    careers_page_found: analysis.careersPageFound,
+  };
+  let usingLegacyColumns = false;
   let scanResult = await supabase
     .from("scans")
     .insert(scanRow)
     .select("id")
     .single();
+
+  if (hasMissingCompanyColumns(scanResult.error)) {
+    usingLegacyColumns = true;
+    scanResult = await supabase
+      .from("scans")
+      .insert(legacyScanRow)
+      .select("id")
+      .single();
+  }
 
   if (
     analysis.recommendation === "Lower Risk" &&
@@ -57,7 +100,10 @@ export async function saveScanReport(
   ) {
     scanResult = await supabase
       .from("scans")
-      .insert({ ...scanRow, recommendation: "Apply" })
+      .insert({
+        ...(usingLegacyColumns ? legacyScanRow : scanRow),
+        recommendation: "Apply",
+      })
       .select("id")
       .single();
   }
@@ -91,13 +137,25 @@ export async function saveScanReport(
 
 export async function getScanReport(id: string): Promise<ScanReport | null> {
   const supabase = getSupabaseAdmin();
-  const { data: scan, error: scanError } = await supabase
+  let scanResult = await supabase
     .from("scans")
     .select(
-      "id,input_type,company_name,job_title,detected_email,original_url,final_url,score,recommendation,summary,created_at",
+      "id,input_type,company_name,job_title,detected_email,original_url,final_url,company_website_domain,careers_page_url,score,recommendation,summary,created_at",
     )
     .eq("id", id)
     .maybeSingle();
+
+  if (hasMissingCompanyColumns(scanResult.error)) {
+    scanResult = await supabase
+      .from("scans")
+      .select(
+        "id,input_type,company_name,job_title,detected_email,original_url,final_url,score,recommendation,summary,created_at",
+      )
+      .eq("id", id)
+      .maybeSingle();
+  }
+
+  const { data: scan, error: scanError } = scanResult;
 
   if (scanError) {
     throw new Error(scanError.message);
@@ -118,7 +176,25 @@ export async function getScanReport(id: string): Promise<ScanReport | null> {
   }
 
   const publicScan = scan as PublicScanRow;
-  const publicSignals = (signals ?? []).map((signal) => ({
+  const rawSignals = (signals ?? []) as StoredSignal[];
+  const companyWebsiteDomain =
+    publicScan.company_website_domain ??
+    evidenceValue(
+      rawSignals,
+      ["Company website candidate found", "Company website not confirmed"],
+      "Domain:",
+    );
+  const careersPageUrl =
+    publicScan.careers_page_url ??
+    evidenceValue(
+      rawSignals,
+      [
+        "Careers page candidate found",
+        "Careers page links to detected ATS",
+      ],
+      "Careers page:",
+    );
+  const publicSignals = rawSignals.map((signal) => ({
     ...signal,
     evidence: sanitizePublicEvidence(signal.evidence),
   })) as StoredSignal[];
@@ -130,7 +206,11 @@ export async function getScanReport(id: string): Promise<ScanReport | null> {
       recommendation: normalizeRecommendation(publicScan.recommendation),
       summary: publicScan.summary,
       created_at: publicScan.created_at,
-      input_summary: createSafeInputSummary(publicScan),
+      input_summary: createSafeInputSummary({
+        ...publicScan,
+        company_website_domain: companyWebsiteDomain,
+        careers_page_url: careersPageUrl,
+      }),
     },
     signals: publicSignals,
   };

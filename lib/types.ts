@@ -29,6 +29,10 @@ export type ScanSignal = {
 export type ScanAnalysis = {
   inputType: InputType;
   inputValue: string;
+  companyWebsiteUrl: string | null;
+  companyWebsiteDomain: string | null;
+  careersPageUrl: string | null;
+  careersPageFound: boolean;
   companyName: string | null;
   jobTitle: string | null;
   detectedEmail: string | null;
@@ -47,6 +51,8 @@ export type SafeInputSummary = {
   originalUrlDomain: string | null;
   finalUrlDomain: string | null;
   emailDomain: string | null;
+  companyWebsiteDomain: string | null;
+  careersPageUrl: string | null;
 };
 
 export type SavedScan = {

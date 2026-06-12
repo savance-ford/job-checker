@@ -6,6 +6,8 @@ import {
 } from "@/lib/scan/extractors";
 import { detectAts } from "@/lib/ats/detectAts";
 import { verifyAtsJob } from "@/lib/ats/verifyAtsJob";
+import { findCareersPage } from "@/lib/company/findCareersPage";
+import { verifyCompanyWebsite } from "@/lib/company/verifyCompanyWebsite";
 import {
   buildSummary,
   calculateScore,
@@ -18,6 +20,7 @@ import type { InputType, ScanAnalysis } from "@/lib/types";
 export async function analyzeInput(
   input: string,
   inputType: InputType,
+  companyWebsite?: string,
 ): Promise<ScanAnalysis> {
   const originalUrl = extractUrl(input);
   const detectedEmail = extractEmail(input);
@@ -53,6 +56,21 @@ export async function analyzeInput(
     atsDetection.provider !== "unknown"
       ? await verifyAtsJob(atsDetection, jobTitle)
       : null;
+  const companyWebsiteVerification = await verifyCompanyWebsite(
+    companyWebsite,
+  );
+  const careersPageVerification = companyWebsiteVerification.websiteFound
+    ? await findCareersPage(
+        companyWebsiteVerification.normalizedUrl,
+        atsDetection,
+      )
+    : {
+        attempted: false as const,
+        found: false as const,
+        status: "not_attempted" as const,
+        message: "Careers page discovery was not attempted.",
+        evidence: [],
+      };
 
   const signals = detectSignals({
     input,
@@ -66,6 +84,8 @@ export async function analyzeInput(
     jobTitle,
     redirectCount: redirectResult.redirectCount,
     redirectError: redirectResult.error,
+    companyWebsiteVerification,
+    careersPageVerification,
   });
   const score = calculateScore(signals);
   const recommendation = getRecommendation(score);
@@ -73,6 +93,11 @@ export async function analyzeInput(
   return {
     inputType,
     inputValue: input,
+    companyWebsiteUrl:
+      companyWebsiteVerification.normalizedUrl ?? companyWebsite ?? null,
+    companyWebsiteDomain: companyWebsiteVerification.domain ?? null,
+    careersPageUrl: careersPageVerification.careersUrl ?? null,
+    careersPageFound: careersPageVerification.found,
     companyName,
     jobTitle,
     detectedEmail,

@@ -226,6 +226,33 @@ export default async function ReportPage({
                     </dd>
                   </div>
                 ) : null}
+                {inputSummary.companyWebsiteDomain ? (
+                  <div>
+                    <dt className="text-slate-500">
+                      Company website domain
+                    </dt>
+                    <dd className="mt-1 break-all font-medium text-slate-900">
+                      {inputSummary.companyWebsiteDomain}
+                    </dd>
+                  </div>
+                ) : null}
+                {inputSummary.careersPageUrl ? (
+                  <div>
+                    <dt className="text-slate-500">
+                      Careers page candidate
+                    </dt>
+                    <dd className="mt-1 break-all font-medium text-slate-900">
+                      <a
+                        href={inputSummary.careersPageUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                        className="text-teal-800 underline decoration-teal-300 underline-offset-4"
+                      >
+                        {inputSummary.careersPageUrl}
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
               </dl>
               <p className="mt-5 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600">
                 Submitted content hidden for privacy.

@@ -16,6 +16,10 @@ create table if not exists public.scans (
   detected_email text,
   original_url text,
   final_url text,
+  company_website_url text,
+  company_website_domain text,
+  careers_page_url text,
+  careers_page_found boolean not null default false,
   score integer not null check (score between 0 and 100),
   recommendation text not null check (
     recommendation in ('Lower Risk', 'Verify First', 'High Caution')
@@ -23,6 +27,12 @@ create table if not exists public.scans (
   summary text,
   created_at timestamptz not null default now()
 );
+
+alter table public.scans
+  add column if not exists company_website_url text,
+  add column if not exists company_website_domain text,
+  add column if not exists careers_page_url text,
+  add column if not exists careers_page_found boolean not null default false;
 
 alter table public.scans
   drop constraint if exists scans_recommendation_check;

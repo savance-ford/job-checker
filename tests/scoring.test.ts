@@ -122,3 +122,38 @@ test("normal listing details remain Verify First without stronger verification",
   assert.equal(score, 66);
   assert.equal(getRecommendation(score), "Verify First");
 });
+
+test("company and careers checks use small, moderate, and strong evidence tiers", () => {
+  const websiteOnly = calculateScore([
+    scoreSignal("positive", "low"),
+  ]);
+  const websiteAndCareers = calculateScore([
+    scoreSignal("positive", "low"),
+    scoreSignal("positive", "medium"),
+  ]);
+  const connectedToAts = calculateScore([
+    scoreSignal("positive", "low"),
+    scoreSignal("positive", "medium"),
+    scoreSignal("positive", "high"),
+  ]);
+
+  assert.equal(websiteOnly, 59);
+  assert.equal(websiteAndCareers, 67);
+  assert.equal(getRecommendation(websiteAndCareers), "Verify First");
+  assert.equal(connectedToAts, 87);
+  assert.equal(getRecommendation(connectedToAts), "Lower Risk");
+});
+
+test("website failures remain mild or score-neutral", () => {
+  const unreachable = calculateScore([
+    scoreSignal("warning", "low"),
+  ]);
+  const networkError = calculateScore([
+    scoreSignal("unknown", "info"),
+  ]);
+
+  assert.equal(unreachable, 50);
+  assert.equal(getRecommendation(unreachable), "Verify First");
+  assert.equal(networkError, 55);
+  assert.equal(getRecommendation(networkError), "Verify First");
+});

@@ -7,6 +7,10 @@ import type {
   AtsDetectionResult,
   AtsVerificationResult,
 } from "@/lib/ats/types";
+import type {
+  CareersPageVerificationResult,
+  CompanyWebsiteVerificationResult,
+} from "@/lib/company/types";
 import {
   hasUnusualDomainPattern,
   hostnameMatches,
@@ -27,6 +31,8 @@ type SignalContext = {
   jobTitle: string | null;
   redirectCount: number;
   redirectError: string | null;
+  companyWebsiteVerification: CompanyWebsiteVerificationResult;
+  careersPageVerification: CareersPageVerificationResult;
 };
 
 function signal(
@@ -88,6 +94,8 @@ export function detectSignals(context: SignalContext) {
     jobTitle,
     redirectCount,
     redirectError,
+    companyWebsiteVerification,
+    careersPageVerification,
   } = context;
   const destinationUrl = finalUrl ?? originalUrl;
   const emailDomain = email?.split("@")[1] ?? null;
@@ -134,6 +142,91 @@ export function detectSignals(context: SignalContext) {
       knownAtsDetected,
     ),
     getAtsVerificationSignal(atsVerification),
+    signal(
+      {
+        label: "Company website candidate found",
+        status: "positive",
+        severity: "low",
+        message: "The provided company website appears reachable.",
+        evidence: companyWebsiteVerification.evidence.join("; "),
+      },
+      companyWebsiteVerification.status === "found",
+    ),
+    signal(
+      {
+        label: "Company website not confirmed",
+        status:
+          companyWebsiteVerification.status === "not_found"
+            ? "warning"
+            : "unknown",
+        severity:
+          companyWebsiteVerification.status === "not_found" ? "low" : "info",
+        message: "The app could not confirm the provided company website.",
+        evidence: companyWebsiteVerification.evidence.join("; "),
+      },
+      ["not_found", "invalid", "error"].includes(
+        companyWebsiteVerification.status,
+      ),
+    ),
+    signal(
+      {
+        label: "Careers page candidate found",
+        status: "positive",
+        severity: "medium",
+        message:
+          "A careers or jobs page candidate was found on the provided company website.",
+        evidence: careersPageVerification.evidence.join("; "),
+      },
+      careersPageVerification.status === "found",
+    ),
+    signal(
+      {
+        label: "Careers page not confirmed",
+        status: "unknown",
+        severity: "info",
+        message:
+          "The app could not find a public careers page from the provided company website.",
+        evidence: careersPageVerification.evidence.join("; "),
+      },
+      careersPageVerification.status === "not_found",
+    ),
+    signal(
+      {
+        label: "Careers page verification incomplete",
+        status: "unknown",
+        severity: "info",
+        message:
+          "The company website was reachable, but the careers page check could not be completed.",
+        evidence: careersPageVerification.evidence.join("; "),
+      },
+      careersPageVerification.status === "error",
+    ),
+    signal(
+      {
+        label: "Careers page links to detected ATS",
+        status: "positive",
+        severity: "high",
+        message:
+          "The careers page appears to link to the same applicant tracking system detected in the job URL.",
+        evidence: careersPageVerification.evidence.join("; "),
+      },
+      Boolean(careersPageVerification.linkedAtsProvider),
+    ),
+    signal(
+      {
+        label: "Careers page ATS link not confirmed",
+        status: "unknown",
+        severity: "info",
+        message:
+          "The app found a careers page but could not confirm it links to the detected ATS.",
+        evidence: careersPageVerification.careersUrl,
+      },
+      Boolean(
+        knownAtsDetected &&
+          careersPageVerification.found &&
+          !careersPageVerification.linkedAtsProvider,
+      ),
+    ),
     signal(
       {
         label: "Shortened URL",
