@@ -41,3 +41,37 @@ test("extractCareersLinks finds careers wording in nested anchor text", () => {
 
   assert.equal(links[0]?.toString(), "https://example.com/company");
 });
+
+test("extractCareersLinks ignores anchors with oversized text", () => {
+  const links = extractCareersLinks(
+    `<a href="/company">${"x".repeat(1_001)} Careers</a>`,
+    baseUrl,
+  );
+
+  assert.deepEqual(links, []);
+});
+
+test("extractCareersLinks does not span an unclosed anchor", () => {
+  const links = extractCareersLinks(
+    [
+      '<a href="/company">',
+      "x".repeat(1_001),
+      '<a href="/careers">Careers</a>',
+    ].join(""),
+    baseUrl,
+  );
+
+  assert.deepEqual(
+    links.map((link) => link.toString()),
+    ["https://example.com/careers"],
+  );
+});
+
+test("extractCareersLinks ignores oversized href values", () => {
+  const links = extractCareersLinks(
+    `<a href="/${"x".repeat(2_049)}">Careers</a>`,
+    baseUrl,
+  );
+
+  assert.deepEqual(links, []);
+});

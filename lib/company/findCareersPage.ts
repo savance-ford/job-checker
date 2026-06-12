@@ -6,6 +6,7 @@ import type {
 } from "@/lib/ats/types";
 import { detectAts } from "@/lib/ats/detectAts";
 import { extractCareersLinks } from "@/lib/company/extractCareersLinks";
+import { selectBestCareersResult } from "@/lib/company/selectCareersResult";
 import type { CareersPageVerificationResult } from "@/lib/company/types";
 import { requestPublicUrl } from "@/lib/company/verifyCompanyWebsite";
 
@@ -95,49 +96,66 @@ export async function findCareersPage(
         return true;
       })
       .slice(0, MAX_CAREERS_CANDIDATES);
-    for (const candidate of candidates) {
-      try {
-        const result = await requestPublicUrl(candidate, "GET");
-        if (
-          result.response.status < 200 ||
-          result.response.status >= 400
-        ) {
-          continue;
-        }
-
-        const careersUrl = new URL(result.finalUrl);
-        careersUrl.search = "";
-        careersUrl.hash = "";
-        const html = (result.html ?? "").slice(
-          0,
-          MAX_HOMEPAGE_HTML_LENGTH,
-        );
-        const connection =
-          atsConnection(html, careersUrl, atsDetection) ??
-          atsConnection(homepageHtml, homepage.finalUrl, atsDetection);
-        const evidence = [`Careers page: ${careersUrl.toString()}`];
-
-        if (connection) {
-          evidence.push(`ATS provider: ${connection.provider}`);
-          if (connection.slug) {
-            evidence.push(`ATS company slug: ${connection.slug}`);
+    const candidateResults = await Promise.all(
+      candidates.map(async (candidate) => {
+        try {
+          const result = await requestPublicUrl(candidate, "GET");
+          if (
+            result.response.status < 200 ||
+            result.response.status >= 400
+          ) {
+            return null;
           }
-        }
 
-        return {
-          attempted: true,
-          found: true,
-          careersUrl: careersUrl.toString(),
-          status: "found",
-          message:
-            "A careers or jobs page candidate was found on the provided company website.",
-          evidence,
-          linkedAtsProvider: connection?.provider,
-          linkedAtsSlug: connection?.slug,
-        };
-      } catch {
-        continue;
-      }
+          const careersUrl = new URL(result.finalUrl);
+          careersUrl.search = "";
+          careersUrl.hash = "";
+          const html = (result.html ?? "").slice(
+            0,
+            MAX_HOMEPAGE_HTML_LENGTH,
+          );
+          const connection =
+            atsConnection(html, careersUrl, atsDetection) ??
+            atsConnection(homepageHtml, homepage.finalUrl, atsDetection);
+          const evidence = [`Careers page: ${careersUrl.toString()}`];
+
+          if (connection) {
+            evidence.push(`ATS provider: ${connection.provider}`);
+            if (connection.slug) {
+              evidence.push(`ATS company slug: ${connection.slug}`);
+            }
+          }
+
+          return {
+            attempted: true,
+            found: true,
+            careersUrl: careersUrl.toString(),
+            status: "found" as const,
+            message:
+              "A careers or jobs page candidate was found on the provided company website.",
+            evidence,
+            linkedAtsProvider: connection?.provider,
+            linkedAtsSlug: connection?.slug,
+            hasConnection: Boolean(connection),
+          };
+        } catch {
+          return null;
+        }
+      }),
+    );
+    const bestResult = selectBestCareersResult(candidateResults);
+
+    if (bestResult) {
+      return {
+        attempted: bestResult.attempted,
+        found: bestResult.found,
+        careersUrl: bestResult.careersUrl,
+        status: bestResult.status,
+        message: bestResult.message,
+        evidence: bestResult.evidence,
+        linkedAtsProvider: bestResult.linkedAtsProvider,
+        linkedAtsSlug: bestResult.linkedAtsSlug,
+      };
     }
 
     return {

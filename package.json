@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types --test tests/privacy-redact.test.ts tests/scoring.test.ts tests/company-url.test.ts tests/careers-links.test.ts"
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types --test tests/privacy-redact.test.ts tests/scoring.test.ts tests/company-url.test.ts tests/careers-links.test.ts tests/careers-result.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
