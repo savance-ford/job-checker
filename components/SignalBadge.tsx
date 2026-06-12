@@ -22,9 +22,9 @@ export function SignalBadge({
   label?: string;
 }) {
   const displayLabel =
-    label === "Job found on ATS"
+    label === "Job found in public ATS feed"
       ? "Found"
-      : label === "Job not found on ATS"
+      : label === "Could not verify exact job"
         ? "Could not verify"
         : label === "ATS verification incomplete"
           ? "Incomplete"

@@ -4,17 +4,26 @@ import type {
   SignalSeverity,
 } from "@/lib/types";
 
+const BASE_SCORE = 55;
+const MIN_SCORE = 0;
+const MAX_SCORE = 100;
+
+// Info signals are basic context, such as HTTPS or listing completeness.
+// Low and medium signals add modest evidence; high positives are reserved for
+// strong external verification, such as finding the exact job in a public ATS.
 const POSITIVE_POINTS: Record<SignalSeverity, number> = {
-  info: 3,
-  low: 5,
-  medium: 9,
-  high: 14,
+  info: 1,
+  low: 4,
+  medium: 8,
+  high: 20,
 };
 
+// A failed lookup is mild caution, while direct financial or identity-data
+// requests remain high-impact warnings.
 const WARNING_POINTS: Record<SignalSeverity, number> = {
   info: 2,
-  low: 7,
-  medium: 14,
+  low: 5,
+  medium: 13,
   high: 25,
 };
 
@@ -27,9 +36,9 @@ export function calculateScore(signals: ScanSignal[]) {
       return total - WARNING_POINTS[signal.severity];
     }
     return total;
-  }, 55);
+  }, BASE_SCORE);
 
-  return Math.max(0, Math.min(100, score));
+  return Math.max(MIN_SCORE, Math.min(MAX_SCORE, score));
 }
 
 export function getRecommendation(score: number): Recommendation {
